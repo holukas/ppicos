@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+
+    <!--STYLE-->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../html_templates/style.css">
+
+    <!--FANCYBOX CSS-->
+    <link href="../js/fancybox/dist/jquery.fancybox.min.css" rel="stylesheet">
+
+    <title>{{ filetype }}</title>
+</head>
+<body>
+
+
+<h1>PP-ICOS File Report // <span>{{ filetype }}</span></h1>
+
+    <!-- <h2>Date</h2>
+        <p>{{ run_date }}</p>
+
+    <h2>Run ID</h2>
+        <p>{{ run_id }}</p>
+
+    <h2>Settings</h2>
+        <ul>
+            {% for key, value in settings.items() -%}
+            <li><span>{{ key }}:</span> {{ value }}</li>
+            {% endfor -%}
+        </ul>  -->
+
+    <h2>File Overview</h2>
+        {{ table }}
+
+
+<!--FANCYBOX JS-->
+<!--from: http://fancyapps.com/fancybox/3/-->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="../js/fancybox/dist/jquery.fancybox.js"></script>
+
+
+</body>
+</html>
