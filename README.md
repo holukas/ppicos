@@ -1,6 +1,7 @@
+![](images/logo_pp-icos1_256px.png)
 # pp-icos
 
-`pp-icos` reads raw data files recorded at the ICOS site CH-DAV and converts 
+`pp-icos` (**p**ost-**p**rocessing for ICOS) reads raw data files recorded at the ICOS site CH-DAV and converts 
 their formats to ICOS-conform file formats.
 
 **No raw data values are changed during this process.**
