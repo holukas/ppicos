@@ -1,4 +1,3 @@
-import multiprocessing
 import csv
 import datetime as dt
 import fnmatch
@@ -7,8 +6,8 @@ import sys
 import time
 import zipfile as zf
 from pathlib import Path
-import numpy as np
 
+import numpy as np
 import pandas as pd
 
 import file_formats as ff
@@ -147,6 +146,22 @@ class format_to_icos(object):
             # make subgroup that contains all files with the same filedate
             same_date_input_files_df = self.input_files_df.loc[self.input_files_df['ETH_filedate'] == unique_date, :]
 
+            # ---------------
+            # COMPLEMENT DATA
+            # Complement data from the current date with data from the previous date
+            # Added in v4.0.14
+            if self.f_settings['d_complement_data_with_previous_date']:
+                prev_date = unique_date - dt.timedelta(days=1)
+                self.logger.log_info('{s} Trying to complement data for date {d} with data '
+                                     'from the previous day {pd}.'.format(s=section_id, d=unique_date, pd=prev_date))
+                prev_date_input_files_df = self.input_files_df.loc[self.input_files_df['ETH_filedate'] == prev_date, :]
+                if prev_date_input_files_df.empty:
+                    self.logger.log_info('{s} No files found for previous date {p}.'.format(s=section_id, p=prev_date))
+                else:
+                    self.logger.log_info('{s} Adding data from the previous date {pd} to '
+                                         'data from {d}.'.format(s=section_id, d=unique_date, pd=prev_date))
+                    same_date_input_files_df = same_date_input_files_df.append(prev_date_input_files_df)
+
             # In case there are multiple files for one day AND no renaming is done in post-processing,
             # the name of the first file for the day is used as template.
             use_this_eth_filename = same_date_input_files_df['ETH_filename'][0]
@@ -156,7 +171,8 @@ class format_to_icos(object):
             filenames = same_date_input_files_df['ETH_filename'].values
             for file in filenames:
                 self.logger.log_info('{}          {}'.format(section_id, file))
-            self.logger.log_info('{}     number of found files: {}'.format(section_id, len(same_date_input_files_df)))
+            self.logger.log_info(
+                '{}     number of found files: {}'.format(section_id, len(same_date_input_files_df)))
 
             # -------------------------------------------------------------------
             # READ DATA
@@ -173,6 +189,8 @@ class format_to_icos(object):
                 new_data_df = self.read_data(row=row, section_id=section_id)
                 data_df = pd.concat([data_df, new_data_df])  # add to data from this day
                 file_counter += 1
+
+            data_df = data_df.sort_index(ascending=True)
 
             # -------------------------------------------------------------------
             # MERGE CHECK
@@ -305,6 +323,10 @@ class format_to_icos(object):
                 # last entry cannot be used b/c files have 1 extra line at the end
                 measurement_day = data_df['measurement_day'][-2]
 
+            elif self.f_settings['f_type'] == '11_meteo_hut_prec':
+                # get last day of file (=newest day)
+                measurement_day = orig_filedate
+
             else:
                 self.logger.log_info('limit_data_to_most_recent_day not registered for this f_type. Stopping script.')
                 sys.exit(-1)
@@ -313,11 +335,22 @@ class format_to_icos(object):
             # select all rows where measurement day is the most recent day, select all columns
             data_df = data_df.loc[data_df['measurement_day'] == measurement_day, :]
 
-            icos_filedate = measurement_day
-            self.logger.log_info("{}          * limiting data to most recent day".format(section_id))
-            self.logger.log_info(
-                "{}            (ICOS filedate {} is different than ETH filedate {})".format(section_id, icos_filedate,
-                                                                                            orig_filedate))
+            if (self.f_settings['f_type'] == '13_meteo_meteoswiss') | \
+                    (self.f_settings['f_type'] == '13_meteo_nabel'):
+                icos_filedate = measurement_day
+                self.logger.log_info("{}          * limiting data to most recent day".format(section_id))
+                self.logger.log_info(
+                    "{}            (ICOS filedate {} is different than ETH filedate {})".format(section_id,
+                                                                                                icos_filedate,
+                                                                                                orig_filedate))
+            else:
+                icos_filedate = orig_filedate
+                self.logger.log_info("{s}          * NOT limiting data to most recent day for "
+                                     "filetype {ft}".format(s=section_id, ft=self.f_settings['f_type']))
+                self.logger.log_info(
+                    "{}            (ICOS filedate {} is the same as ETH filedate {})".format(section_id, icos_filedate,
+                                                                                             orig_filedate))
+
 
         else:
             icos_filedate = orig_filedate
@@ -395,7 +428,6 @@ class format_to_icos(object):
             except ValueError as e:
                 self.logger.log_info('(!)WARNING column {} could not be converted to numeric: {}'.format(col, e))
                 pass
-
 
         # log file
         self.logger.log_info('{}          data rows: {}'.format(section_id, data_df.shape[0]))
@@ -484,7 +516,7 @@ class format_to_icos(object):
                        index=False,
                        header=header,
                        na_rep='NaN',
-                       line_terminator='\n')
+                       line_terminator='\r\n')
 
         self.logger.log_info("{}          * saved uncompressed ICOS file: {}".format(
             section_id, icos_uncompressed_outfilepath))

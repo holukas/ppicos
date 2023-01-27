@@ -16,7 +16,7 @@ have established variable names that have been in use for decades.
 - **Compressing files:** `CH-Dav_BM_20180817_L02_F03.csv` is compressed to `CH-Dav_BM_20180817_L02_F03.zip`
 - **Formatting of timestamps**: `%Y-%m-%d %H:%M:%S` is formatted to `%Y%m%d%H%M%S`
 - **Limiting time range of files**: some external data providers transfer more than one day of data each day. These
-files are modified to contain data only from the most recent day before the files are transferred to ICOS.
+files are modified to contain data from the most recent day only before the files are transferred to ICOS.
 
 In the source folder `pp-icos`, the `start_*.py` files are the scripts that start the conversion of a specific
 filetype (e.g., `10_meteo` files) to ICOS-conform formats. These start scripts are executed automatically each
