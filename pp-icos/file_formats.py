@@ -13,8 +13,6 @@ Info about the file structure
 
     'data_header_rows':         The CR1000 header
 
-
-
     'file_LN':                  LN (2 digits) is the logger number (each logger must be identified
                                 by a unique number)
 
@@ -44,6 +42,7 @@ def f_10_meteo():
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [24, 28],
         'fname_month_position': [29, 31],
@@ -57,10 +56,10 @@ def f_10_meteo():
         'f_LN': '02',
         'f_FN': '03',
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/10_meteo'),
-        # 'f_source_dir': 'input',
+        # 'f_source_dir': Path('F:\_temp'),
         'f_log_subdir': Path('logs'),
         'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo'),
-        # 'icos_file_outpath': Path('output/10_meteo'),
+        # 'icos_file_outpath': Path('F:\_temp'),
         'f_compression': True,
         'f_delete_uncompressed': True
     }
@@ -85,6 +84,7 @@ def f_10_meteo_heatflag_sonic():
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_SAHEAT_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [24, 28],
         'fname_month_position': [29, 31],
@@ -101,10 +101,53 @@ def f_10_meteo_heatflag_sonic():
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/10_meteo'),
         # 'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/10_meteo/2018/09'),
         'f_log_subdir': Path('log'),
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo_heatflag_sonic'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo_heatflag_sonic'),
         # 'icos_file_outpath': Path('output/10_meteo_heatflag_sonic'),
         'f_compression': False,
         'f_delete_uncompressed': False
+    }
+
+    return file_info
+
+
+def f_11_meteo_hut_prec():
+    # File contains precipitation
+    # example filename: CH-DAV_iDL_H1_0_1_TBL3_2023_01_25_0004.dat
+    # Added in v4.0.14
+
+    file_info = {
+        'd_timestamp_col': 0,
+        'd_timestamp_format': '%Y-%m-%d %H:%M:%S',
+        'd_icos_timestamp_format': '%Y%m%d%H%M',
+        'd_timestamp_keep_non_icos': True,
+        'd_header_rows': [1, 2],
+        'd_header_row_with_variable_names': 1,
+        'd_header_remove_suffix_from_variable_names': ['_Tot'],
+        'd_header_output_to_file': True,
+        'd_skip_rows': [3],
+        'd_separator': ',',
+        'd_rename_columns': False,
+        'd_keep_only_renamed_columns': False,
+        'd_only_most_recent_day': True,
+        'd_complement_data_with_previous_date': True,  # Some data of current day is stored in previous day's data
+        'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
+        'fname_year_position': [23, 27],
+        'fname_month_position': [28, 30],
+        'fname_day_position': [31, 33],
+        'fname_hour_position': [34, 36],
+        'fname_minute_position': [36, 38],
+        'fname_length': 42,
+        'fname_id': 'CH-DAV_iDL_H1_0_1_TBL3_*.dat',
+        'f_type': '11_meteo_hut_prec',
+        'f_resolution': '1T',
+        'f_LN': '03',
+        'f_FN': '03',
+        'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/11_meteo_hut'),
+        'f_log_subdir': Path('log'),
+        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/11_meteo_hut'),
+        'f_compression': True,
+        'f_delete_uncompressed': True
     }
 
     return file_info
@@ -129,6 +172,7 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [24, 28],
         'fname_month_position': [29, 31],
@@ -139,7 +183,8 @@ def f_12_meteo_forest_floor(forest_floor, table):
         # 'f_source_dir': Path('input'),
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/12_meteo_forestfloor'),
         'f_log_subdir': Path('log'),
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor'),
         # 'icos_file_outpath': Path('output/12_meteo_forestfloor'),
         'f_compression': True,
         'f_delete_uncompressed': True
@@ -215,6 +260,7 @@ def f_13_meteo_meteoswiss():
         'd_rename_columns': renaming_map,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': True,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [7, 11],
         'fname_month_position': [11, 13],
@@ -229,7 +275,8 @@ def f_13_meteo_meteoswiss():
         'f_FN': '02',
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/13_meteo_meteoswiss'),
         'f_log_subdir': Path('log'),
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_meteoswiss'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_meteoswiss'),
         # 'icos_file_outpath': Path('output/13_meteo_meteoswiss'),
         'f_compression': True,
         'f_delete_uncompressed': True
@@ -256,6 +303,7 @@ def f_13_meteo_backup_eth():
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [24, 28],
         'fname_month_position': [29, 31],
@@ -272,7 +320,8 @@ def f_13_meteo_backup_eth():
         # 'f_source_dir': Path('input'),
         'f_log_subdir': Path('logs'),
         # 'f_log_subdir': 'logs',
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_backup_eth'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_backup_eth'),
         # 'icos_file_outpath': Path('output/13_meteo_backup_eth'),
         'f_compression': True,
         'f_delete_uncompressed': True
@@ -309,6 +358,7 @@ def f_13_meteo_nabel():
         'd_rename_columns': renaming_map,
         'd_keep_only_renamed_columns': True,
         'd_only_most_recent_day': True,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [16, 18],
         'fname_month_position': [18, 20],
@@ -332,6 +382,7 @@ def f_13_meteo_nabel():
     }
 
     return file_info
+
 
 def f_15_meteo_snowheight():
     # Current: edited 2022-01-05, LH
@@ -362,6 +413,7 @@ def f_15_meteo_snowheight():
         'd_rename_columns': renaming_map,  # 2022-01-05
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'fname_year_position': [18, 22],  # 2022-01-05
         'fname_month_position': [22, 24],  # 2022-01-05
@@ -376,7 +428,8 @@ def f_15_meteo_snowheight():
         'f_FN': '07',  # 2022-01-05
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/15_meteo_snowheight'),
         'f_log_subdir': Path('logs'),
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
         'f_compression': True,
         'f_delete_uncompressed': True
     }
@@ -398,7 +451,6 @@ def f_15_meteo_snowheight():
     return file_info
 
 
-
 def f_17_meteo_profile():
     # example filename: CH-Dav_BM_20180819_L01_F02.dat
 
@@ -416,6 +468,7 @@ def f_17_meteo_profile():
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         'fname_generate_icos_filename': False,
         'fname_year_position': [10, 14],
         'fname_month_position': [14, 16],
@@ -430,7 +483,8 @@ def f_17_meteo_profile():
         'f_FN': '02',
         'f_source_dir': Path('//grasslandserver.ethz.ch/archive/FluxData/CH-DAV_Davos/17_meteo_profile'),
         'f_log_subdir': Path('log'),
-        'icos_file_outpath': Path('//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
+        'icos_file_outpath': Path(
+            '//grasslandserver.ethz.ch/processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
         # 'icos_file_outpath': Path('output/17_meteo_profile'),
         'f_compression': True,
         'f_delete_uncompressed': True
@@ -454,6 +508,7 @@ def f_30_profile_ghg():
         'd_rename_columns': False,
         'd_keep_only_renamed_columns': False,
         'd_only_most_recent_day': False,
+        'd_complement_data_with_previous_date': False,
         # todo the next line should be set to empty [] once PM has changed the filename
         'fname_generate_icos_filename': 'CH-Dav_ST_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         # 'fname_generate_icos_filename': False,
