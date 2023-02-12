@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.0.15 | 2023-02-12
+
+- When reading the raw data csv, `inf` values (they come directly from the logger)
+  are now considered as missing values `NaN`.
+
 ## v4.0.14 | 2023-01-27
 
 ### Complement data with data from preceeding files

@@ -225,8 +225,6 @@ class format_to_icos(object):
                                                    orig_filedate=unique_date,
                                                    section_id=section_id)
 
-            print(data_df)
-
             # -------------------------------------------------------------------
             # INSERT ICOS TIMESTAMP
             data_df = self.insert_icos_timestamp(data_df=data_df,
@@ -300,8 +298,9 @@ class format_to_icos(object):
         return data_df
 
     def limit_data_to_most_recent_day(self, data_df, orig_filedate, section_id):
-        """ Limits data in the ICOS file to data from only the most recent day.
+        """ Limits data in the ICOS file to data from the most recent day.
             Necessary for these data files that contain data from more than only the most recent day:
+                * 11_meteo_hut_prec (starts too late, ends too early)
                 * 13_meteo_meteoswiss (contains last 3 days)
                 * 13_meteo_nabel (contains last 4 days)
             For ICOS, we only send the newest data from the most recent day.
@@ -311,7 +310,7 @@ class format_to_icos(object):
             # note that the timestamp refers to the end of the measurements period
             # create new column that only gives the day of measurement
             # for this we need to subtract x minutes from the timestamp
-            # e.g. for 2018-09-06 00:00 we subtract 60 min to get 2018-09-05 23:00 (date therefore 2018-09-05)
+            # e.g. for 2018-09-06 00:00 we subtract 60 sec to get 2018-09-05 23:00 (date therefore 2018-09-05)
             data_df['measurement_day'] = data_df.index - dt.timedelta(minutes=1)
             data_df['measurement_day'] = data_df['measurement_day'].dt.date
 
@@ -326,6 +325,7 @@ class format_to_icos(object):
             elif self.f_settings['f_type'] == '11_meteo_hut_prec':
                 # get last day of file (=newest day)
                 measurement_day = orig_filedate
+
 
             else:
                 self.logger.log_info('limit_data_to_most_recent_day not registered for this f_type. Stopping script.')
@@ -419,7 +419,10 @@ class format_to_icos(object):
                               encoding='utf-8',
                               sep=self.f_settings['d_separator'],
                               error_bad_lines=False,
-                              na_values='NAN')
+                              na_values=['NAN', 'inf'])  # 'inf' added in v4.0.15
+
+        # # Indexes of rows that contain 'inf'
+        # data_df.index[np.isinf(data_df).any(1)]
 
         # Convert to numeric where possible
         for col in data_df.columns:
