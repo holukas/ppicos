@@ -17,7 +17,7 @@ def render_template(template_filename, context):
 
 
 def make_file_overview(filetype, site_html_outdir, run_id, table, run_date, settings_dict):
-    outfile = os.path.join(site_html_outdir, "pp-icos_file_report_{}.html".format(filetype))
+    outfile = os.path.join(site_html_outdir, "ppicos_file_report_{}.html".format(filetype))
 
     context = {
         'filetype': filetype, 'RUN_ID': run_id, 'table': table,

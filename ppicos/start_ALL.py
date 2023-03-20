@@ -39,9 +39,9 @@ for filetype, filetypesettings in loop_settings.items():
 # Runtime
 total_seconds = datetime.datetime.now() - script_start
 print(f"\n\n\n{'=' * 40}\nRuntime for all filetypes: {total_seconds}")
-print("\nSuccesful pp-icos runs:")
+print("\nSuccesful ppicos runs:")
 [print(f"    OK:  {r}") for r in run_successful]
-print("\nNOT succesful pp-icos runs:")
+print("\nNOT succesful ppicos runs:")
 [print(f"    NOT OK:  {r}") for r in run_not_successful]
 
 sys.exit()

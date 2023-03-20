@@ -1,8 +1,8 @@
-![](images/logo_pp-icos1_256px.png)
+![](images/logo_ppicos1_256px.png)
 
-# pp-icos
+# ppicos
 
-`pp-icos` (**p**ost-**p**rocessing for ICOS) reads raw data files recorded at the ICOS site CH-DAV and converts
+`ppicos` (**p**ost-**p**rocessing for ICOS) reads raw data files recorded at the ICOS site CH-DAV and converts
 their formats to ICOS-conform file formats.
 
 **No raw data values are changed during this process.**
@@ -22,7 +22,7 @@ Modifications of the raw data files are limited to (with examples):
 - **Limiting time range of files**: some external data providers transfer more than one day of data each day. These
   files are modified to contain data from the most recent day only before the files are transferred to ICOS.
 
-In the source folder `pp-icos`, the `start_*.py` files are the scripts that start the conversion of a specific
+In the source folder `ppicos`, the `start_*.py` files are the scripts that start the conversion of a specific
 filetype (e.g., `10_meteo` files) to ICOS-conform formats. These start scripts are executed automatically each
 day. The resulting ICOS-conform files are then moved to a separate folder, from where they are picked up by
 another script and transferred to the ICOS server.

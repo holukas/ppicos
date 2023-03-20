@@ -1,7 +1,7 @@
 """
 
 =======
-pp-icos
+ppicos
 =======
 
 Post-processing of raw data files:
@@ -49,7 +49,7 @@ class IcosFormat:
         self.logger = self._setup_logger()
 
         # Location of filetype logfile, stores names of already-processed files
-        logfilename_alreadyprocessed = f"pp-icos_{self.filesettings['FILE_FILEGROUP']}_files-already-processed.log"
+        logfilename_alreadyprocessed = f"ppicos_{self.filesettings['FILE_FILEGROUP']}_files-already-processed.log"
         self.logfilepath_alreadyprocessed = self.filesettings['DIR_OUT_ICOS'] / logfilename_alreadyprocessed
         self.filetype_logfile_contents = self._read_filetype_logfile()
 
@@ -60,7 +60,7 @@ class IcosFormat:
             self.icos_timestamp_col = 'TIMESTAMP'
 
     def run(self):
-        """Run pp-icos processing chain"""
+        """Run ppicos processing chain"""
 
         # Search files in source and make a dataframe
         input_files_df = self._generate_file_list()
@@ -649,10 +649,10 @@ class IcosFormat:
             # Create logfile if it does not exist yet
             with open(self.logfilepath_alreadyprocessed, 'w') as f:
                 f.write(f"================================================\n")
-                f.write(f"FILES ALREADY PROCESSED AND CREATED WITH pp-icos\n")
+                f.write(f"FILES ALREADY PROCESSED AND CREATED WITH ppicos\n")
                 f.write(f"================================================\n")
                 f.write(f"* Files listed here are not re-processed\n")
-                f.write(f"* Delete files from list this enable re-processing with pp-icos\n")
+                f.write(f"* Delete files from list this enable re-processing with ppicos\n")
                 f.write(f"------------------------------------------------\n")
             contents = ""
         return contents
