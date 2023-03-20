@@ -1,12 +1,12 @@
 # Changelog
 
-## v5.0.0 | 20 Mar 2023
+## v5.0.3 | 20 Mar 2023
 
 ## Major update
 
 This is a major update. All code has been refactored and all Python dependencies
 updated to their newest possible version. The refactoring was necessary to give
-`pp-icos` a cleaner code structure that is easier to maintain.
+`ppicos` a cleaner code structure that is easier to maintain.
 
 The main difference to previous versions is how daily files are generated. With
 this version, the datafiles for the last x days (by default: 10) are read and
@@ -15,6 +15,9 @@ e.g. the ICOS-compliant timestamp is generated and variables are renamed to
 comply with ICOS variable naming. From this merged time series, the daily files
 are generated. This facilitates the generation of daily files that start and
 end at the exact timestamps required for ICOS.
+
+The script was renamed to `ppicos` (instead of `pp-icos`) to comply with the 
+Python naming convention for packages.
 
 ### Other
 

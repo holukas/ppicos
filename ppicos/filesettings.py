@@ -58,8 +58,8 @@ def f_10_meteo():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '03',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '02'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\10_meteo'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\10_meteo')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\10_meteo'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\10_meteo')  # testing
     }
 
     return file_info
@@ -98,8 +98,8 @@ def f_10_meteo_heatflag_sonic():
         'OUTFILE_DELETE_UNCOMPRESSED': False,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '02'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\10_meteo'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\10_meteo_heatflag_sonic')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\10_meteo'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\10_meteo_heatflag_sonic')  # testing
     }
 
     return file_info
@@ -140,8 +140,8 @@ def f_11_meteo_hut_prec():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '03',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '03'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\11_meteo_hut'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\11_meteo_hut')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\11_meteo_hut'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\11_meteo_hut')  # testing
     }
 
     return file_info
@@ -177,8 +177,8 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'FILENAME_YEAR_POSITION': [24, 28],
         'OUTFILE_COMPRESSION': True,
         'OUTFILE_DELETE_UNCOMPRESSED': True
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\12_meteo_forestfloor'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\12_meteo_forestfloor')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\12_meteo_forestfloor'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\12_meteo_forestfloor')  # testing
     }
 
     file_info['FILENAME_ID'] = 'CH-DAV_iDL_FF{ff}_0_1_TBL{t}_*.dat'.format(ff=forest_floor, t=table)
@@ -267,8 +267,8 @@ def f_13_meteo_meteoswiss():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '20'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\13_meteo_meteoswiss'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\13_meteo_meteoswiss')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\13_meteo_meteoswiss'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\13_meteo_meteoswiss')  # testing
     }
 
     return file_info
@@ -308,8 +308,8 @@ def f_13_meteo_backup_eth():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '04',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '21'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\13_meteo_backup_eth'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\13_meteo_backup_eth')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\13_meteo_backup_eth'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\13_meteo_backup_eth')  # testing
     }
 
     return file_info
@@ -361,8 +361,8 @@ def f_13_meteo_nabel():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '04',  # Updated F03 --> F04 in v4.1
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '22'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\13_meteo_nabel'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\13_meteo_nabel')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\13_meteo_nabel'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\13_meteo_nabel')  # testing
     }
 
     return file_info
@@ -413,8 +413,8 @@ def f_15_meteo_snowheight():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '07',  # 2022-01-05
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\15_meteo_snowheight'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\15_meteo_snowheight')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\15_meteo_snowheight'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\15_meteo_snowheight')  # testing
     }
 
     # previous format ending 2021-12-01:
@@ -466,8 +466,8 @@ def f_17_meteo_profile():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\17_meteo_profile'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\17_meteo_profile')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\17_meteo_profile'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\17_meteo_profile')  # testing
     }
 
     return file_info
@@ -504,8 +504,8 @@ def f_30_profile_ghg():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',  # renamed to correct ICOS file number
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '10'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_pp-icos\input\30_profile_ghg'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_pp-icos\output\30_profile_ghg')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\30_profile_ghg'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\30_profile_ghg')  # testing
     }
 
     return file_info

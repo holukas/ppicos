@@ -45,7 +45,7 @@ def make_run_id():
     now_time_dt = dt.datetime.now()
     now_time_str = now_time_dt.strftime("%Y%m%d%H%M%S")
     now_time_easyread_str = now_time_dt.strftime("%Y-%m-%d %H:%M:%S")
-    run_id = 'pp-icos-' + now_time_str
+    run_id = 'ppicos-' + now_time_str
     return run_id, now_time_easyread_str, now_time_dt
 
 

@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "pp-icos"
-version = "v5.0.0"
-description = "Format raw data files to ICOS format."
-authors = ["holukas <lukas.hoertnagl@usys.ethz.ch>"]
+name = "ppicos"
+version = "5.0.3"
+description = ""
+authors = ["Lukas Hörtnagl"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
