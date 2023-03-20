@@ -8,10 +8,10 @@ This is a major update. All code has been refactored and all Python dependencies
 updated to their newest possible version. The refactoring was necessary to give
 `pp-icos` a cleaner code structure that is easier to maintain.
 
-The main difference to previous versions is how daily files are generated. With 
+The main difference to previous versions is how daily files are generated. With
 this version, the datafiles for the last x days (by default: 10) are read and
-their data are merged. The merged data are then formatted to the ICOS format, 
-e.g. the ICOS-compliant timestamp is generated and variables are renamed to 
+their data are merged. The merged data are then formatted to the ICOS format,
+e.g. the ICOS-compliant timestamp is generated and variables are renamed to
 comply with ICOS variable naming. From this merged time series, the daily files
 are generated. This facilitates the generation of daily files that start and
 end at the exact timestamps required for ICOS.
@@ -28,20 +28,6 @@ end at the exact timestamps required for ICOS.
   1 Oct 2019, and at the time of this writing they continue to be wrong. For ICOS,
   we shared corrected precipitation data from the `11_meteo_hut` files, the previously
   shared wrong data was overwritten.
-
-- Changed behavior of filetype setting `d_complement_data_with_previous_date`: In case
-  there is no data available for the previous day, the current day is now completely
-  skipped. The reason for this change is that every day the script generates daily
-  files for the last x days and therefore the previous day for the first day is
-  always missing, generating a file with missing records every day.
-  Example:
-    - Generating files for the last 3 days, script started on 16 Mar 2023
-    - Found files for 13, 14 and 15 Mar
-    - Complete daily file for 13 Mar cannot be build, has missing records at start
-    - Daily files for 14 and 15 Mar are complete and therefore OK
-    - Script then runs again on 17 Mar 2023
-    - Found files for 14, 15 and 16 Mar
-    -
 
 ## v4.0.15 | 2023-02-12
 
