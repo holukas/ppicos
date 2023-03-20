@@ -20,7 +20,7 @@ def make_file_overview(filetype, site_html_outdir, run_id, table, run_date, sett
     outfile = os.path.join(site_html_outdir, "pp-icos_file_report_{}.html".format(filetype))
 
     context = {
-        'filetype': filetype, 'run_id': run_id, 'table': table,
+        'filetype': filetype, 'RUN_ID': run_id, 'table': table,
         'run_date': run_date, 'settings': settings_dict
     }
 

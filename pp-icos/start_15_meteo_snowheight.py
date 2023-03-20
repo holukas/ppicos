@@ -1,5 +1,11 @@
-import file_formats as ff
-from main import format_to_icos
+import sys
 
-format_icos = format_to_icos(file_format=ff.f_15_meteo_snowheight(), max_age_days=8)
+import filesettings
+from main import IcosFormat
 
+MAX_AGE_DAYS = 10
+FILESETTINGS = filesettings.f_15_meteo_snowheight()
+
+icosformat = IcosFormat(filesettings=FILESETTINGS, max_age_days=MAX_AGE_DAYS)
+icosformat.run()
+sys.exit()

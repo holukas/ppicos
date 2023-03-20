@@ -2,57 +2,50 @@ import datetime as dt
 import hashlib
 import ntpath
 import os
-import time
 from pathlib import Path
 
 import pandas as pd
 
 
-def file_list_search_folders(logger, section_name, source_dir, max_age_days):
-    # define a time range in which we should search for new (not yet processed) files
-    # by default, search for new files of the last 7 days
-    search_end_date = dt.datetime.now()
-    search_end_dir = Path(source_dir,
-                          '{:04}'.format(search_end_date.year),
-                          '{:02}'.format(search_end_date.month))
+def set_search_window(max_age_days: int = 5) -> tuple[dt.date, dt.date]:
+    """Set start and end date for file search"""
 
-    # define yearly and monthly subfolder for search
-    search_start_date = search_end_date - dt.timedelta(days=max_age_days)
-    search_start_dir = Path(source_dir,
-                            '{:04}'.format(search_start_date.year),
-                            '{:02}'.format(search_start_date.month))
+    # Define yearly and monthly subfolder for search
+    search_firstdate = dt.datetime.now().date()
+    search_firstdate = search_firstdate - dt.timedelta(days=max_age_days)
 
-    # search for files in the two subdirs
-    if search_start_dir == search_end_dir:
-        search_dirs = [search_start_dir]
-    else:
-        search_dirs = [search_start_dir, search_end_dir]
+    # Search window always ends with yesterday's date
+    search_lastdate = dt.datetime.now().date()
+    search_lastdate = search_lastdate - dt.timedelta(days=1)  # Last searched day is always yesterday
 
-    # found search dirs
-    logger.log_info("{} Searching for new files in:".format(section_name))
-    for ix, search_dir in enumerate(search_dirs):
-        logger.log_info("{}      DIR {}: {}".format(section_name, ix, search_dir))
-
-    return search_dirs, search_start_date
+    return search_firstdate, search_lastdate
 
 
-def section_start(logger, section_name):
-    tic = time.time()
-    logger.log_info("\n\n\n{}\n{} SECTION START".format('-' * 80, section_name))
-    return tic, section_name
+def set_search_folders(source_dir, search_firstdate, search_lastdate):
+    """Detect folder names for search window
 
+    kudos: https://stackoverflow.com/questions/37890391/how-to-include-end-date-in-pandas-date-range-method
+    """
 
-def section_end(logger, section_name, tic):
-    section_runtime = time.time() - tic
-    logger.log_info('{} SECTION END. Runtime: {:.4f}s'.format(section_name, section_runtime))
-    return None
+    # Generate monthly dates between first and last date
+    search_firstdate_str = search_firstdate.strftime('%Y-%m')
+    search_lastdate_str = search_lastdate.strftime('%Y-%m')
+    dates_str = [search_firstdate_str, search_lastdate_str]
+    _index = pd.date_range(*(pd.to_datetime(dates_str) + pd.offsets.MonthEnd()), freq='M')
+
+    # Generate paths to search dirs
+    searchdirs = []
+    for m in _index:
+        searchdirs.append(Path(source_dir) / f'{m.year:04}' / f'{m.month:02}')
+
+    return searchdirs, pd.to_datetime(search_firstdate).date()
 
 
 def make_run_id():
     now_time_dt = dt.datetime.now()
     now_time_str = now_time_dt.strftime("%Y%m%d%H%M%S")
     now_time_easyread_str = now_time_dt.strftime("%Y-%m-%d %H:%M:%S")
-    run_id = 'PP-ICOS-' + now_time_str
+    run_id = 'pp-icos-' + now_time_str
     return run_id, now_time_easyread_str, now_time_dt
 
 
@@ -117,49 +110,23 @@ def hash_value_for_file(file_full_path):
     return sha1.digest()
 
 
-def get_datetime_from_filename(fname, f_settings):
+def get_datetime_from_filename(filename: str, filesettings: dict):
     # get datetime numbers from fname
-    f_year = int(fname[f_settings['fname_year_position'][0]:f_settings['fname_year_position'][1]])
+    f_year = int(filename[filesettings['FILENAME_YEAR_POSITION'][0]:filesettings['FILENAME_YEAR_POSITION'][1]])
 
     # in case the year is only given as 2 digits (e.g. 18 instead of 2018),
     # we assume the 21st century is meant; for ICOS, this is only the case for 13_meteo_nabel
     if len(str(f_year)) == 2:
         f_year = int('20{}'.format(f_year))
 
-    f_month = int(fname[f_settings['fname_month_position'][0]:f_settings['fname_month_position'][1]])
-    f_day = int(fname[f_settings['fname_day_position'][0]:f_settings['fname_day_position'][1]])
+    f_month = int(filename[filesettings['FILENAME_MONTH_POSITION'][0]:filesettings['FILENAME_MONTH_POSITION'][1]])
+    f_day = int(filename[filesettings['FILENAME_DAY_POSITION'][0]:filesettings['FILENAME_DAY_POSITION'][1]])
 
-    if f_settings['fname_hour_position']:
-        f_hour = int(fname[f_settings['fname_hour_position'][0]:f_settings['fname_hour_position'][1]])
+    if filesettings['FILENAME_HOUR_POSITION']:
+        f_hour = int(filename[filesettings['FILENAME_HOUR_POSITION'][0]:filesettings['FILENAME_HOUR_POSITION'][1]])
         f_minute = int(
-            fname[f_settings['fname_minute_position'][0]:f_settings['fname_minute_position'][1]])
+            filename[filesettings['FILENAME_MINUTE_POSITION'][0]:filesettings['FILENAME_MINUTE_POSITION'][1]])
         f_datetime = dt.datetime(f_year, f_month, f_day, f_hour, f_minute)
     else:
         f_datetime = dt.datetime(f_year, f_month, f_day)
     return f_datetime
-
-
-def read_prev_run_logfile(filepath, dateparser_format):
-    dateparser = lambda x: pd.datetime.strptime(x, dateparser_format)
-    df = pd.read_csv(filepath, parse_dates=True, date_parser=dateparser,
-                     index_col=0, header=0, encoding='utf-8')
-    return df
-
-
-def dateparser(date, date_format, logger, filepath, section_id):
-    """ Date parser for use in the pandas read_csv method (as lambda date function).
-        Checks for errors during parsing.
-    """
-
-    try:
-        return pd.datetime.strptime(date, date_format)
-        # date = pd.datetime.strptime(date, date_format)
-        # lambda date: print(date)
-        # date = pd.datetime.strptime(date, date_format)
-
-    except TypeError as err:
-        logger.log_info("{s} (!)WARNING: ERROR READING DATE IN AT LEAST ONE ROW IN FILE\n"
-                        "{s}       ¦  {f}\n"
-                        "{s}       ¦  Error message: {e}".format(
-            s=section_id, f=filepath, e=err))
-

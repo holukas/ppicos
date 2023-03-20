@@ -1,4 +1,11 @@
-import file_formats as ff
-from main import format_to_icos
+import sys
 
-format_icos = format_to_icos(file_format=ff.f_10_meteo(), max_age_days=5)
+import filesettings
+from main import IcosFormat
+
+MAX_AGE_DAYS = 10
+FILESETTINGS = filesettings.f_10_meteo()
+
+icosformat = IcosFormat(filesettings=FILESETTINGS, max_age_days=MAX_AGE_DAYS)
+icosformat.run()
+sys.exit()
