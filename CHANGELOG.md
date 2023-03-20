@@ -1,5 +1,48 @@
 # Changelog
 
+## v5.0.0 | 20 Mar 2023
+
+## Major update
+
+This is a major update. All code has been refactored and all Python dependencies
+updated to their newest possible version. The refactoring was necessary to give
+`pp-icos` a cleaner code structure that is easier to maintain.
+
+The main difference to previous versions is how daily files are generated. With 
+this version, the datafiles for the last x days (by default: 10) are read and
+their data are merged. The merged data are then formatted to the ICOS format, 
+e.g. the ICOS-compliant timestamp is generated and variables are renamed to 
+comply with ICOS variable naming. From this merged time series, the daily files
+are generated. This facilitates the generation of daily files that start and
+end at the exact timestamps required for ICOS.
+
+### Other
+
+- In `13_meteo_nabel`, the precipitation variable `REGEN` is no longer used for
+  ICOS. These data are not correct, there seems to be an issue with how the
+  NABEL logger script stores the data. Instead, precipitation data is now
+  used from the `11_meteo_hut` files (`TBL3`) which logs the data correctly.
+  The filetype with the correct precipitation data is `f_11_meteo_hut_prec`.
+
+- **Note**: precipitation data in `13_meteo_nabel` files are wrong since at least
+  1 Oct 2019, and at the time of this writing they continue to be wrong. For ICOS,
+  we shared corrected precipitation data from the `11_meteo_hut` files, the previously
+  shared wrong data was overwritten.
+
+- Changed behavior of filetype setting `d_complement_data_with_previous_date`: In case
+  there is no data available for the previous day, the current day is now completely
+  skipped. The reason for this change is that every day the script generates daily
+  files for the last x days and therefore the previous day for the first day is
+  always missing, generating a file with missing records every day.
+  Example:
+    - Generating files for the last 3 days, script started on 16 Mar 2023
+    - Found files for 13, 14 and 15 Mar
+    - Complete daily file for 13 Mar cannot be build, has missing records at start
+    - Daily files for 14 and 15 Mar are complete and therefore OK
+    - Script then runs again on 17 Mar 2023
+    - Found files for 14, 15 and 16 Mar
+    -
+
 ## v4.0.15 | 2023-02-12
 
 - When reading the raw data csv, `inf` values (they come directly from the logger)
@@ -25,7 +68,7 @@
   adjusted: in case data from a previous date were added to the current date, the
   resulting dataframe is restricted to data from the current date.
 - In the case of `f_11_meteo_hut_prec`, the following settings in `file_formats.py` are
-  important: `'d_only_most_recent_day': True`and `'d_complement_data_with_previous_date': True`.
+  important: `'d_only_most_recent_day': True`and `'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': True`.
   The first settings adds data from the previous date to the current date, the second setting
   makes sure that only data from the current date remains in the daily file.
 
@@ -99,7 +142,7 @@ DAV;202007080020;6.6;0;0.0;81.2
       the data columns are now strictly read as floats. In addition, the nan values that
       are found in the logger files (NAN) are now specifically considered when a csv file
       is read.
-      (in main.py: data_df = pd.read_csv(Path(row['ETH_filepath']), ...)
+      (in main.py: data_df = pd.read_csv(Path(row['ETH_FILEPATH']), ...)
       The following arguments were added when reading csv files:
         na_values='NAN', dtype=np.float64
       Original ICOS error message:
@@ -126,8 +169,8 @@ DAV;202007080020;6.6;0;0.0;81.2
 * in file_formats.py f_10_meteo_heatflag_sonic:
   Files are no longer compressed to zip. Instead, the unzipped files are sent
   to ICOS:
-  'f_compression': False,
-  'f_delete_uncompressed': False
+  'OUTFILE_COMPRESSION': False,
+  'OUTFILE_DELETE_UNCOMPRESSED': False
 
 ## v 4.0.2 | 2019-03-04
 
@@ -144,7 +187,7 @@ DAV;202007080020;6.6;0;0.0;81.2
 
 version: 4 (2018-11-13):    * added 13_meteo_nabel
 
-* added option 'd_keep_only_renamed_columns': True/False, to settings dict
+* added option 'DATA_KEEP_ONLY_RENAMED_COLUMNS': True/False, to settings dict
   if TRUE, only renamed columns are written to the ICOS output file
 * method limit_data_to_most_recent_day: now defined explicitely for
   13_meteo_meteoswiss and f_13_meteo_nabel
@@ -154,7 +197,7 @@ version: 4 (2018-11-13):    * added 13_meteo_nabel
 * changed date_parser in read_csv for data files, now using pd.to_datetime:
 
                                     dateparse = lambda date: pd.to_datetime(date,
-                                    format=self.f_settings['d_timestamp_format'], errors='coerce')
+                                    format=self.f_settings['DATA_TIMESTAMP_FORMAT'], errors='coerce')
 
                                     This seems like a much better option because it catches erroneous date rows via
                                     errors='coerce'. Rows with erroneous data are simply removed from the output.
