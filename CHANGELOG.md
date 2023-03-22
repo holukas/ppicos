@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.0.4 | 22 Mar 2023
+
+## Updated file search
+
+- When generating the list of files, all files after search date are now valid.
+  Before this change, the file with today's date was removed from the search results.
+  Incomplete days (e.g. today's data) are removed later during the formatting.
+  This was necessary because some files have a slightly different convention
+  regarding the datetime info in their filenames. For example, the datetime
+  info in the filenames of the `13_meteo_nabel` files refers to the last record
+  in the file, which means that the file with the date 22 Mar 2023 does include
+  data until incl. 21 Mar 2023, i.e., data for the date indicated in the filename
+  (22 Mar) is not included in the file.
+- Renamed some of the the filesettings parameters to make naming more consistent:
+  `FILENAME_POSITION_YEAR`, `FILENAME_POSITION_MONTH`, `FILENAME_POSITION_DAY`,
+  `FILENAME_POSITION_HOUR`, `FILENAME_POSITION_MINUTE`
+
 ## v5.0.3 | 20 Mar 2023
 
 ## Major update
@@ -16,7 +33,7 @@ comply with ICOS variable naming. From this merged time series, the daily files
 are generated. This facilitates the generation of daily files that start and
 end at the exact timestamps required for ICOS.
 
-The script was renamed to `ppicos` (instead of `pp-icos`) to comply with the 
+The script was renamed to `ppicos` (instead of `pp-icos`) to comply with the
 Python naming convention for packages.
 
 ### Other

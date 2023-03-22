@@ -462,8 +462,9 @@ class IcosFormat:
             try:
                 filedata_df[col] = filedata_df[col].astype(np.float64)
             except ValueError as e:
-                self.logger.log_info(f"{section_name}       (!)WARNING column {col} could not be converted to numeric ({e}), "
-                                     f"instead the column was converted to string")
+                self.logger.log_info(
+                    f"{section_name}       (!)WARNING column {col} could not be converted to numeric ({e}), "
+                    f"instead the column was converted to string")
                 filedata_df[col] = filedata_df[col].astype(str)
 
         # # NOT DONE FOR ICOS FILES: fill date range, no date gaps, needs freq
@@ -526,15 +527,11 @@ class IcosFormat:
         return checkok
 
     def _check_date_in_filename(self, filename: str, search_firstdate, section_name: str = None) -> bool:
+        """Ignore files with filenames that are older than search date"""
         filename_date = tools.get_datetime_from_filename(filename=filename, filesettings=self.filesettings)
         filename_date = filename_date.date()
-        today_date = datetime.datetime.now().date()
-        if (filename_date >= search_firstdate) & (filename_date != today_date):
+        if (filename_date >= search_firstdate):
             checkok = True
-        elif filename_date == today_date:
-            checkok = False
-            msg = f"{section_name} (!) SKIPPING FILE {filename} - filedate {filename_date} is today (today's file is ignored)"
-            self.logger.log_info(msg)
         else:
             checkok = False
             msg = f"{section_name} (!) SKIPPING FILE {filename} - filedate {filename_date} older than start date {search_firstdate}"
