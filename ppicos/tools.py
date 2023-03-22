@@ -112,20 +112,20 @@ def hash_value_for_file(file_full_path):
 
 def get_datetime_from_filename(filename: str, filesettings: dict):
     # get datetime numbers from fname
-    f_year = int(filename[filesettings['FILENAME_YEAR_POSITION'][0]:filesettings['FILENAME_YEAR_POSITION'][1]])
+    f_year = int(filename[filesettings['FILENAME_POSITION_YEAR'][0]:filesettings['FILENAME_POSITION_YEAR'][1]])
 
     # in case the year is only given as 2 digits (e.g. 18 instead of 2018),
     # we assume the 21st century is meant; for ICOS, this is only the case for 13_meteo_nabel
     if len(str(f_year)) == 2:
         f_year = int('20{}'.format(f_year))
 
-    f_month = int(filename[filesettings['FILENAME_MONTH_POSITION'][0]:filesettings['FILENAME_MONTH_POSITION'][1]])
-    f_day = int(filename[filesettings['FILENAME_DAY_POSITION'][0]:filesettings['FILENAME_DAY_POSITION'][1]])
+    f_month = int(filename[filesettings['FILENAME_POSITION_MONTH'][0]:filesettings['FILENAME_POSITION_MONTH'][1]])
+    f_day = int(filename[filesettings['FILENAME_POSITION_DAY'][0]:filesettings['FILENAME_POSITION_DAY'][1]])
 
-    if filesettings['FILENAME_HOUR_POSITION']:
-        f_hour = int(filename[filesettings['FILENAME_HOUR_POSITION'][0]:filesettings['FILENAME_HOUR_POSITION'][1]])
+    if filesettings['FILENAME_POSITION_HOUR']:
+        f_hour = int(filename[filesettings['FILENAME_POSITION_HOUR'][0]:filesettings['FILENAME_POSITION_HOUR'][1]])
         f_minute = int(
-            filename[filesettings['FILENAME_MINUTE_POSITION'][0]:filesettings['FILENAME_MINUTE_POSITION'][1]])
+            filename[filesettings['FILENAME_POSITION_MINUTE'][0]:filesettings['FILENAME_POSITION_MINUTE'][1]])
         f_datetime = dt.datetime(f_year, f_month, f_day, f_hour, f_minute)
     else:
         f_datetime = dt.datetime(f_year, f_month, f_day)
