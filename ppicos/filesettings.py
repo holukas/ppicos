@@ -369,12 +369,14 @@ def f_13_meteo_nabel():
 
 
 def f_15_meteo_snowheight():
-    # Current: edited 2022-01-05, LH
+    # Current: edited 2023-11-26, LH
     # first file with this format 2021-12-02
     # - TOA5
     # - example filename: CH-DAV_snowheight_20220104.dat
     # - file now stores ETH variable names that are then
     #   renamed to ICOS variable names with this script
+    # - this file was originally recorded with snow depth in m (until 16 Nov 2023)
+    # - since 17 Nov 2023, the snow depth is in cm as required by ICOS
 
     renaming_map = {
         'D_SNOW_M1_1.8_1_Smp': 'D_SNOW_1_1_1',
@@ -411,10 +413,10 @@ def f_15_meteo_snowheight():
         'FILENAME_POSITION_YEAR': [18, 22],
         'OUTFILE_COMPRESSION': True,
         'OUTFILE_DELETE_UNCOMPRESSED': True,
-        'OUTFILE_ICOS_FILENUMBER_FN': '07',
+        'OUTFILE_ICOS_FILENUMBER_FN': '08',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
-        # 'DIR_SOURCE_FILES': Path(r'F:\Downloads\_temp\testing_ppicos\input\15_meteo_snowheight'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:\Downloads\_temp\testing_ppicos\output\15_meteo_snowheight')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'L:\Sync\luhk_work\20 - CODING\24 - ICOS\ppicos\example_input_output\input'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'L:\Sync\luhk_work\20 - CODING\24 - ICOS\ppicos\example_input_output\output')  # testing
     }
 
     # previous format ending 2021-12-01:
