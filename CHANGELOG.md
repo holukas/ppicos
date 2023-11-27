@@ -1,5 +1,9 @@
 # Changelog
 
+## v5.0.6 | 27 Nov 2023
+
+- Updated settings for filetype `15_meteo_snowheight`
+
 ## v5.0.5 | 21 Oct 2023
 
 - Moved repo to GitLab: https://github.com/holukas/ppicos

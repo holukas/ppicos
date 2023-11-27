@@ -3,12 +3,7 @@
 .idea
 /_archive
 /_raw_photoshop
-/_wait
-/example_conversions_for_ETC
-/input
-/output
-Syncfolders_Database_db
-del.csv
+/_example_input_output
 
 
 # Byte-compiled / optimized / DLL files

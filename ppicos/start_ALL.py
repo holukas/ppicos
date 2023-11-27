@@ -6,7 +6,7 @@ from main import IcosFormat
 
 script_start = datetime.datetime.now()
 
-MAX_AGE_DAYS = 20
+MAX_AGE_DAYS = 28
 
 loop_settings = {
     '10_meteo': filesettings.f_10_meteo(),
