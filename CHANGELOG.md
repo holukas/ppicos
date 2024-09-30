@@ -6,7 +6,7 @@
 
 ## v5.0.5 | 21 Oct 2023
 
-- Moved repo to GitLab: https://github.com/holukas/ppicos
+- Moved repo to GitHub: https://github.com/holukas/ppicos
 
 ## v5.0.4 | 22 Mar 2023
 
