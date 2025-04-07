@@ -1,10 +1,10 @@
 # Changelog
 
-## v5.1.0 | XX Apr 2025
+## v5.1.0 | 8 Apr 2025
 
+- Repo is now private
 - Added new file settings `f_10_meteo_press`
 - Updated file settings `f_17_meteo_profile`
-
 
 ## v5.0.6 | 27 Nov 2023
 

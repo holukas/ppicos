@@ -31,8 +31,6 @@ another script and transferred to the ICOS server.
 
 The file settings in `filesettings.py` define how the respective filetype is modified.
 
-Note that this file is not included in this repository for security reasons.
-
 If `ppicos` is executed, the file `filesettings.py` has to reside in the same folder as the `start_*.py` scripts.
 
 ### General settings
@@ -68,7 +66,7 @@ If `ppicos` is executed, the file `filesettings.py` has to reside in the same fo
 
 ### Example settings
 
-- Here is an example entry for the file settings `f_17_meteo_profile` in `filesettings.py`.
+- Here is an example entry for the file setting `f_17_meteo_profile` in `filesettings.py`.
 - These settings are used if the start script `start_17_meteo_profile.py` is executed.
 
 ```
