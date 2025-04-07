@@ -11,6 +11,7 @@ MAX_AGE_DAYS = 28
 loop_settings = {
     '10_meteo': filesettings.f_10_meteo(),
     '10_meteo_heatflag_sonic': filesettings.f_10_meteo_heatflag_sonic(),
+    '10_meteo_press': filesettings.f_10_meteo_press(),
     '11_meteo_hut_prec': filesettings.f_11_meteo_hut_prec(),
     '12_meteo_forest_floor_1': filesettings.f_12_meteo_forest_floor(forest_floor=1, table=1),
     '12_meteo_forest_floor_2': filesettings.f_12_meteo_forest_floor(forest_floor=2, table=1),
@@ -39,9 +40,9 @@ for filetype, filetypesettings in loop_settings.items():
 # Runtime
 total_seconds = datetime.datetime.now() - script_start
 print(f"\n\n\n{'=' * 40}\nRuntime for all filetypes: {total_seconds}")
-print("\nSuccesful ppicos runs:")
+print("\nSuccessful ppicos runs:")
 [print(f"    OK:  {r}") for r in run_successful]
-print("\nNOT succesful ppicos runs:")
+print("\nNOT successful ppicos runs:")
 [print(f"    NOT OK:  {r}") for r in run_not_successful]
 
 sys.exit()
