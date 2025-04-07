@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "ppicos"
 version = "5.1"
-description = ""
-authors = ["Lukas Hörtnagl"]
+description = "Convert data files to ICOS-conform file formats."
+authors = ["Lukas Hörtnagl <holukas@ethz.ch>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -10,6 +10,9 @@ pandas = "^1.5.3"
 Jinja2 = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+ppicos = "ppicos:start_ALL"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

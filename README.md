@@ -31,11 +31,17 @@ another script and transferred to the ICOS server.
 
 The file settings in `filesettings.py` define how the respective filetype is modified.
 
+Note that this file is not included in this repository for security reasons.
+
+If `ppicos` is executed, the file `filesettings.py` has to reside in the same folder as the `start_*.py` scripts.
+
+### General settings
+
 - `DATA_COMPLEMENT_WITH_PREVIOUS_DATE`: `True` or `False`
 - `DATA_HEADER_OUTPUT_TO_FILE`: `True` or `False`
-- `DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES`: xxx, e.g. `['_Avg']`
-- `DATA_HEADER_ROWS`: xxx, e.g. `[1, 2]`
-- `DATA_ICOS_TIMESTAMP_FORMAT`: xxx, e.g. `'%Y%m%d%H%M'`
+- `DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES`: Suffix to remove from variable names, e.g. `['_Avg']`
+- `DATA_HEADER_ROWS`: Defines where the variable names , e.g. `[1, 2]`
+- `DATA_ICOS_TIMESTAMP_FORMAT`: Timestamp format in output files as required by ICOS, e.g. `'%Y%m%d%H%M'`
 - `DATA_KEEP_ONLY_RENAMED_COLUMNS`: `True` or `False`
 - `DATA_RENAME_COLUMNS`: `False` or a dictionary of old (key) and new (value) columns names, e.g. `renaming_map`, which
   is a Python `dict` such as `renaming_map = {'tre200s0': 'TA_3_1_1', 'gre000z0': 'SW_IN_3_1_1'}`
@@ -59,3 +65,62 @@ The file settings in `filesettings.py` define how the respective filetype is mod
 - `FILENAME_YEAR_POSITION`: [24, 28]
 - `OUTFILE_COMPRESSION`: True
 - `OUTFILE_DELETE_UNCOMPRESSED`: True
+
+### Example settings
+
+- Here is an example entry for the file settings `f_17_meteo_profile` in `filesettings.py`.
+- These settings are used if the start script `start_17_meteo_profile.py` is executed.
+
+```
+def f_17_meteo_profile():
+    # example filename: CH-DAV_meteo-profile_20250401.dat (current)
+    
+    renaming_map = {
+        'TA_T1_1_1_Avg': 'TA_1_1_1',
+        'TA_T1_2_1_Avg': 'TA_1_2_1',
+        'TA_T1_10_1_Avg': 'TA_1_3_1',
+        'TA_T1_20_1_Avg': 'TA_1_4_1',
+        'TA_T1_25_1_Avg': 'TA_1_5_1',
+        'TA_T1_35_1_Avg': 'TA_1_6_1',
+        'RH_T1_1_1_Avg': 'RH_1_1_1',
+        'RH_T1_2_1_Avg': 'RH_1_2_1',
+        'RH_T1_10_1_Avg': 'RH_1_3_1',
+        'RH_T1_20_1_Avg': 'RH_1_4_1',
+        'RH_T1_25_1_Avg': 'RH_1_5_1',
+        'RH_T1_35_1_Avg': 'RH_1_6_1',
+    }
+
+    file_info = {
+        'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
+        'DATA_FREQUENCY': '10S',
+        'DATA_HEADER_OUTPUT_TO_FILE': True,
+        'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
+        'DATA_HEADER_ROWS': [1],
+        'DATA_ICOS_TIMESTAMP_FORMAT': '%Y%m%d%H%M%S',
+        'DATA_KEEP_ONLY_RENAMED_COLUMNS': True,
+        'DATA_RENAME_COLUMNS': renaming_map,
+        'DATA_SEPARATOR': ',',
+        'DATA_SKIP_ROWS': [2, 3],
+        'DATA_TIMESTAMP_COL': 0,
+        'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',  # 2025-04-06 00:00:10
+        'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
+        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
+        'DIR_OUT_LOGFILE': Path('log'),
+        'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/17_meteo_profile'),
+        'FILE_FILEGROUP': '17_meteo_profile',
+        'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
+        'FILENAME_ID': 'CH-DAV_meteo-profile_*.dat',
+        'FILENAME_LENGTH': 33,
+        'FILENAME_POSITION_HOUR': [],
+        'FILENAME_POSITION_MINUTE': [],
+        'FILENAME_POSITION_DAY': [27, 29],
+        'FILENAME_POSITION_MONTH': [25, 27],
+        'FILENAME_POSITION_YEAR': [21, 25],
+        'OUTFILE_COMPRESSION': True,
+        'OUTFILE_DELETE_UNCOMPRESSED': True,
+        'OUTFILE_ICOS_FILENUMBER_FN': '09',
+        'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
+    }
+
+    return file_info
+```
