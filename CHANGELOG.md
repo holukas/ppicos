@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.1.0 | XX Apr 2025
+
+- Added new file settings `f_10_meteo_press`
+- Updated file settings `f_17_meteo_profile`
+
+
 ## v5.0.6 | 27 Nov 2023
 
 - Updated settings for filetype `15_meteo_snowheight`
