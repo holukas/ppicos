@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.1.1 | 25 Jul 2025
+
+
 ## v5.1.0 | 8 Apr 2025
 
 - Repo is now private

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ppicos"
-version = "5.1.0"
+version = "5.1.1"
 description = "Convert data files to ICOS-conform file formats."
 authors = ["Lukas Hörtnagl <holukas@ethz.ch>"]
 
