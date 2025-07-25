@@ -392,8 +392,7 @@ def f_13_meteo_nabel():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%d.%m.%Y %H:%M',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('F:/TMP/testing'),
-        # TODO 'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_nabel'),
+        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_nabel'),
         'DIR_OUT_LOGFILE': Path('logs'),
         'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/13_meteo_nabel'),
         'FILE_FILEGROUP': '13_meteo_nabel',
@@ -409,8 +408,6 @@ def f_13_meteo_nabel():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '04',  # Updated F03 --> F04 in v4.1
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '22'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/13_meteo_nabel'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/13_meteo_nabel')  # testing
     }
 
     return file_info
@@ -447,9 +444,9 @@ def f_15_meteo_snowheight():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        # 'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
+        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
         'DIR_OUT_LOGFILE': Path('logs'),
-        # 'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/15_meteo_snowheight'),
+        'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/15_meteo_snowheight'),
         'FILE_FILEGROUP': '15_meteo_snowheight',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_snowheight_*.dat',
@@ -463,9 +460,9 @@ def f_15_meteo_snowheight():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '08',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01',
-        'DIR_SOURCE_FILES': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/input'),
-        # testing
-        'DIR_OUT_ICOS': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/output')  # testing
+        # # testing
+        # 'DIR_SOURCE_FILES': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/input'),
+        # 'DIR_OUT_ICOS': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/output')  # testing
     }
 
     # previous format ending 2021-12-01:
