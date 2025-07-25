@@ -3,7 +3,7 @@ import sys
 import filesettings
 from main import IcosFormat
 
-MAX_AGE_DAYS = 270
+MAX_AGE_DAYS = 14
 FILESETTINGS = filesettings.f_13_meteo_nabel()
 
 icosformat = IcosFormat(filesettings=FILESETTINGS, max_age_days=MAX_AGE_DAYS)
