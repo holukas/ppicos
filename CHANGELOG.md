@@ -2,6 +2,7 @@
 
 ## v5.1.1 | 25 Jul 2025
 
+- Fixed bug in input and output directories
 
 ## v5.1.0 | 8 Apr 2025
 
