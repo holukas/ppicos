@@ -224,8 +224,8 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'FILENAME_POSITION_YEAR': [24, 28],
         'OUTFILE_COMPRESSION': True,
         'OUTFILE_DELETE_UNCOMPRESSED': True
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/12_meteo_forestfloor'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/12_meteo_forestfloor')  # testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\TMP\del'),  # todo testing
+        # 'DIR_OUT_ICOS': Path(r'F:\TMP\del')  # todo testing
     }
 
     file_info['FILENAME_ID'] = 'CH-DAV_iDL_FF{ff}_0_1_TBL{t}_*.dat'.format(ff=forest_floor, t=table)
@@ -298,7 +298,8 @@ def f_13_meteo_meteoswiss():
         'DATA_TIMESTAMP_COL': 1,
         'DATA_TIMESTAMP_FORMAT': '%Y%m%d%H%M',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_meteoswiss'),
+        'DIR_OUT_ICOS': Path(
+            '//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_meteoswiss'),
         'DIR_OUT_LOGFILE': Path('log'),
         'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/13_meteo_meteoswiss'),
         'FILE_FILEGROUP': '13_meteo_meteoswiss',
@@ -339,7 +340,8 @@ def f_13_meteo_backup_eth():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_backup_eth'),
+        'DIR_OUT_ICOS': Path(
+            '//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_backup_eth'),
         'DIR_OUT_LOGFILE': Path('logs'),
         'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/13_meteo_backup_eth'),
         'FILE_FILEGROUP': '13_meteo_backup_eth',
@@ -444,7 +446,8 @@ def f_15_meteo_snowheight():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
+        'DIR_OUT_ICOS': Path(
+            '//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
         'DIR_OUT_LOGFILE': Path('logs'),
         'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/15_meteo_snowheight'),
         'FILE_FILEGROUP': '15_meteo_snowheight',
@@ -531,9 +534,12 @@ def f_17_meteo_profile():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',  # 2025-04-06 00:00:10
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),  # NEW Apr 2025
+        'DIR_OUT_ICOS': Path(
+            '//nas12.ethz.ch/green_groups_gl_processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
+        # NEW Apr 2025
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/17_meteo_profile'),  # NEW Apr 2025
+        'DIR_SOURCE_FILES': Path('//nas12.ethz.ch/green_groups_gl_rawdata/FluxData/CH-DAV_Davos/17_meteo_profile'),
+        # NEW Apr 2025
         'FILE_FILEGROUP': '17_meteo_profile',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         # 'FILENAME_ID': 'CH-Dav_BM_*_L01_F02.dat',
