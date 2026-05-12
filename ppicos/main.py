@@ -118,28 +118,27 @@ class IcosFormat:
             for grp_date, grp_df in grouped_daily:
 
                 # Make filename for ICOS
-                outfilename_icos = self._create_icos_filename(year=grp_date.year, month=grp_date.month, day=grp_date.day)
+                filename = self._create_icos_filename(year=grp_date.year, month=grp_date.month, day=grp_date.day)
 
                 # Full output path to output files
-                # Detect output path with subdir from filedate
-                outpath = tools.get_subdir_from_date(date=grp_date, outpath=self.filesettings['DIR_OUT_ICOS'])
-                icos_uncompressed_outfilepath = outpath / outfilename_icos
-                icos_zipped_outfilepath = outpath / f"{Path(outfilename_icos).stem}.zip"
+                dir_out = tools.get_subdir_from_date(date=grp_date, outpath=self.filesettings['DIR_OUT_ICOS'])
+                csv_path = dir_out / filename
+                zip_path = dir_out / f"{Path(filename).stem}.zip"
 
                 # Detect which filename to write to the filetype processing logfile
-                filename_for_filetype_logfile = \
-                    str(icos_zipped_outfilepath.name) \
+                output_filename = \
+                    str(zip_path.name) \
                         if self.filesettings['OUTFILE_COMPRESSION'] \
-                        else str(icos_uncompressed_outfilepath.name)
+                        else str(csv_path.name)
 
                 # Check if filename already processed, if yes skip this file
-                checkok = self._check_if_already_processed(filename=filename_for_filetype_logfile,
+                checkok = self._check_if_already_processed(filename=output_filename,
                                                            grp_date=grp_date,
                                                            section_name=section_name)
                 if not checkok:
                     continue
 
-                self.logger.log_info(f"{section_name}    --> Creating daily file {filename_for_filetype_logfile} "
+                self.logger.log_info(f"{section_name}    --> Creating daily file {output_filename} "
                                      f"for date {grp_date}")
 
                 # Basic data info
@@ -151,30 +150,28 @@ class IcosFormat:
 
                 # Save uncompressed ICOS file
                 self._save_uncompressed_icos_file(df=grp_df,
-                                                  outfilepath=icos_uncompressed_outfilepath,
+                                                  outfilepath=csv_path,
                                                   section_name=section_name)
 
                 # Save zipped ICOS file (if required)
-                self._save_zipped_icos_file(filepath_to_compress=icos_uncompressed_outfilepath,
-                                            outfilepath=icos_zipped_outfilepath,
+                self._save_zipped_icos_file(filepath_to_compress=csv_path,
+                                            outfilepath=zip_path,
                                             section_name=section_name)
 
                 # Delete uncompressed ICOS file (if required)
-                self._delete_uncompressed_icos_file(outfilepath_uncompressed=icos_uncompressed_outfilepath,
+                self._delete_uncompressed_icos_file(outfilepath_uncompressed=csv_path,
                                                     section_name=section_name)
 
                 # Get info about previous script runs
-                self._add_filename_to_filetype_logfile(filename=filename_for_filetype_logfile)
+                self._add_filename_to_filetype_logfile(filename=output_filename)
 
     def _delete_uncompressed_icos_file(self, outfilepath_uncompressed, section_name) -> None:
         """Delete uncompressed file if needed (optional)"""
         if self.filesettings['OUTFILE_DELETE_UNCOMPRESSED']:
             os.remove(outfilepath_uncompressed)
-            self.logger.log_info(
-                f"{section_name}        * deleted uncompressed ICOS file: {outfilepath_uncompressed}")
+            self.logger.log_info(f"{section_name}        * deleted uncompressed ICOS file: {outfilepath_uncompressed}")
         else:
-            self.logger.log_info(
-                f"{section_name}        * uncompressed ICOS file {outfilepath_uncompressed} was not deleted")
+            self.logger.log_info(f"{section_name}        * uncompressed ICOS file {outfilepath_uncompressed} was not deleted")
 
     def _save_zipped_icos_file(self, filepath_to_compress, outfilepath, section_name) -> None:
         """Saves compressed (zipped) ICOS file"""
@@ -441,30 +438,30 @@ class IcosFormat:
         """Set time range for search window and detect valid source folders"""
 
         # Search window
-        search_firstdate, search_lastdate = tools.set_search_window(max_age_days=self.max_age_days)
+        start_date, end_date = tools.set_search_window(max_age_days=self.max_age_days)
 
         # Check in which subfolders we can start the search for new files
-        search_dirs, search_firstdate = \
+        search_dirs, start_date = \
             tools.set_search_folders(source_dir=self.filesettings['DIR_SOURCE_FILES'],
-                                     search_firstdate=search_firstdate,
-                                     search_lastdate=search_lastdate)
+                                     search_firstdate=start_date,
+                                     search_lastdate=end_date)
 
         # found search dirs
         self.logger.log_info(f"{section_name} Searching for new files in:")
         for ix, search_dir in enumerate(search_dirs):
             self.logger.log_info(f"{section_name}      DIR {ix}: {search_dir}")
 
-        return search_dirs, search_firstdate
+        return search_dirs, start_date
 
     def _search_files(self, search_dirs) -> list:
         """Make list of all files in search dirs, store complete path to file"""
-        fileslist = []
+        files = []
         for search_dir in search_dirs:
-            for root, dirs, files in os.walk(search_dir):
-                for file_ix, file in enumerate(files):
-                    filepath = Path(root) / file
-                    fileslist.append(filepath)
-        return fileslist
+            for root, dirs, filenames in os.walk(search_dir):
+                for filename in filenames:
+                    filepath = Path(root) / filename
+                    files.append(filepath)
+        return files
 
     def _check_filename_id(self, filename, section_name: str = None) -> bool:
         if not fnmatch.fnmatch(filename, self.filesettings['FILENAME_ID']):
@@ -478,13 +475,13 @@ class IcosFormat:
 
     def _check_date_in_filename(self, filename: str, search_firstdate, section_name: str = None) -> bool:
         """Ignore files with filenames that are older than search date"""
-        filename_date = tools.get_datetime_from_filename(filename=filename, filesettings=self.filesettings)
-        filename_date = filename_date.date()
-        if (filename_date >= search_firstdate):
+        file_date = tools.get_datetime_from_filename(filename=filename, filesettings=self.filesettings)
+        file_date = file_date.date()
+        if (file_date >= search_firstdate):
             checkok = True
         else:
             checkok = False
-            msg = f"{section_name} (!) SKIPPING FILE {filename} - filedate {filename_date} older than start date {search_firstdate}"
+            msg = f"{section_name} (!) SKIPPING FILE {filename} - filedate {file_date} older than start date {search_firstdate}"
             self.logger.log_info(msg)
         return checkok
 
@@ -519,15 +516,15 @@ class IcosFormat:
                 self.max_age_days += 1
 
             # Set source dirs for searching files
-            search_dirs, search_firstdate = self._set_monthly_search_folders(section_name=section_name)
+            search_dirs, start_date = self._set_monthly_search_folders(section_name=section_name)
 
             # Make list of all files in search dirs
-            fileslist = self._search_files(search_dirs=search_dirs)
+            files = self._search_files(search_dirs=search_dirs)
 
             # Dataframe to collect valid files
             files_df = pd.DataFrame()
 
-            for filepath in fileslist:
+            for filepath in files:
 
                 kwargs = dict(section_name=section_name)
 
@@ -540,19 +537,19 @@ class IcosFormat:
                 if not checkok: continue
 
                 # Check if filedate is within search window
-                checkok = self._check_date_in_filename(filename=filepath.name, search_firstdate=search_firstdate, **kwargs)
+                checkok = self._check_date_in_filename(filename=filepath.name, search_firstdate=start_date, **kwargs)
                 if not checkok: continue
 
                 # Get date from filename
-                filename_dt = tools.get_datetime_from_filename(filename=filepath.name, filesettings=self.filesettings)
+                file_date = tools.get_datetime_from_filename(filename=filepath.name, filesettings=self.filesettings)
 
                 # Add file to df
                 # the index is the date contained in the filename
-                files_df.loc[filename_dt, 'RUN_ID'] = self.run_id
-                files_df.loc[filename_dt, 'RUN_DATETIME'] = self.run_start_dt
-                files_df.loc[filename_dt, 'ETH_FILENAME'] = filepath.name
-                files_df.loc[filename_dt, 'ETH_FILEPATH'] = filepath
-                files_df.loc[filename_dt, 'ETH_FILEDATE'] = filename_dt.date()
+                files_df.loc[file_date, 'RUN_ID'] = self.run_id
+                files_df.loc[file_date, 'RUN_DATETIME'] = self.run_start_dt
+                files_df.loc[file_date, 'ETH_FILENAME'] = filepath.name
+                files_df.loc[file_date, 'ETH_FILEPATH'] = filepath
+                files_df.loc[file_date, 'ETH_FILEDATE'] = file_date.date()
 
             files_df = files_df.sort_index()
 
