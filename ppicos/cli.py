@@ -1,4 +1,46 @@
-"""Command-line interface for ppicos"""
+"""
+Command-line interface for ppicos.
+
+This module provides the CLI entry point for ppicos, enabling users to run
+the data processing pipeline from the command line with flexible options for
+selecting specific file types, instances, and processing parameters.
+
+Usage Examples:
+    # List available file types
+    ppicos --list
+
+    # Run all file types
+    ppicos
+
+    # Run specific file type
+    ppicos --type 10_meteo
+
+    # Run forest floor instance 2
+    ppicos --type 12_meteo_forest_floor --instance 2
+
+    # Run with custom search window (30 days instead of default 14)
+    ppicos --max-age-days 30
+
+    # Show help and all available options
+    ppicos --help
+
+Available File Types:
+    - 10_meteo: Basic meteorology
+    - 10_meteo_press: Pressure sensor
+    - 10_meteo_heatflag_sonic: Heat flag & sonic anemometer
+    - 11_meteo_hut_prec: Hut precipitation
+    - 12_meteo_forest_floor: Forest floor (instances 1-5)
+    - 13_meteo_meteoswiss: MeteoSwiss data
+    - 13_meteo_backup_eth: ETH backup data
+    - 13_meteo_nabel: NABEL data
+    - 15_meteo_snowheight: Snow height
+    - 17_meteo_profile: Meteorology profile
+    - 30_profile_ghg: GHG profile
+
+Exit Codes:
+    0: Success (all processors completed without errors)
+    1: Failure (at least one processor failed or invalid arguments)
+"""
 
 import argparse
 import datetime

@@ -13,6 +13,12 @@ No raw data values are modified—only formatting transformations are applied:
 - File compression to ZIP (optional)
 - Extraction of daily data from multi-day raw files
 
+## Git Workflow
+
+**Never commit, stage, or add files to git.** Write commit messages only; the user handles all git operations.
+
+**When writing prose (commit messages, changelog entries, documentation):** Always use the `/llm-detox` skill to ensure natural, human-sounding text before presenting it.
+
 ## Installation & Usage
 
 ### Prerequisites

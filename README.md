@@ -7,6 +7,80 @@ their formats to ICOS-conform file formats.
 
 **No raw data values are changed during this process.**
 
+## Installation & Usage
+
+### Install
+
+```bash
+pip install .
+# or with uv (recommended)
+uv sync
+```
+
+### Quick Start
+
+After installation, use the `ppicos` command:
+
+```bash
+# Show available file types
+ppicos --list
+
+# Run all file types
+ppicos
+
+# Run specific file type (e.g., 10_meteo)
+ppicos --type 10_meteo
+
+# Run forest floor with specific instance (1-5)
+ppicos --type 12_meteo_forest_floor --instance 2
+
+# Override search window (default: 14 days)
+ppicos --max-age-days 30
+
+# Show all options
+ppicos --help
+```
+
+### CLI Examples
+
+Run all file types:
+
+```bash
+ppicos --max-age-days 14
+```
+
+Run specific processors (all with search window of 14 days):
+
+```bash
+ppicos --type 10_meteo --max-age-days 14
+ppicos --type 10_meteo_press --max-age-days 14
+ppicos --type 10_meteo_heatflag_sonic --max-age-days 14
+ppicos --type 11_meteo_hut_prec --max-age-days 14
+ppicos --type 13_meteo_backup_eth --max-age-days 14
+ppicos --type 13_meteo_meteoswiss --max-age-days 14
+ppicos --type 13_meteo_nabel --max-age-days 14
+ppicos --type 15_meteo_snowheight --max-age-days 14
+ppicos --type 17_meteo_profile --max-age-days 14
+ppicos --type 30_profile_ghg --max-age-days 14
+```
+
+Forest floor (all 5 instances with table=1):
+
+```bash
+ppicos --type 12_meteo_forest_floor --instance 1 --table 1 --max-age-days 14
+ppicos --type 12_meteo_forest_floor --instance 2 --table 1 --max-age-days 14
+ppicos --type 12_meteo_forest_floor --instance 3 --table 1 --max-age-days 14
+ppicos --type 12_meteo_forest_floor --instance 4 --table 1 --max-age-days 14
+ppicos --type 12_meteo_forest_floor --instance 5 --table 1 --max-age-days 14
+```
+
+Discovery:
+
+```bash
+ppicos --list
+ppicos --help
+```
+
 ## File modifications
 
 Modifications of the raw data files are limited to (with examples):
