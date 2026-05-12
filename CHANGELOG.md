@@ -19,7 +19,12 @@
 - Simplified module docstring in main.py — removed ASCII art box formatting
 - Consolidated file validation methods into single _validate_file() for cleaner, more maintainable code
 - Consolidated file export methods into single _save_daily_file() handling CSV save, optional ZIP compression, and optional deletion
-- Refactored logging: Logger class now tracks current_section internally, eliminating section_name parameter noise from 15+ methods
+- Refactored logging: Logger class now tracks current_section internally, eliminating section_name parameter from 15+ methods
+- Consolidated file validation into single `_validate_file()` method (3 methods → 1)
+- Consolidated file export into single `_save_daily_file()` method (3 methods → 1)
+- Logger.section() converted from standalone function to context manager method
+- Removed dead code and commented-out code blocks for cleaner codebase
+- Reduced main.py from 616 to 560 lines (56 lines saved)
 - Added comprehensive WORKFLOW.md documenting the complete data processing pipeline, architecture, and design decisions
 - Requires Python 3.12 or higher
 - Now installable via pip install . or uv sync

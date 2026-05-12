@@ -101,6 +101,24 @@ filetype (e.g., `10_meteo` files) to ICOS-conform formats. These start scripts a
 day. The resulting ICOS-conform files are then moved to a separate folder, from where they are picked up by
 another script and transferred to the ICOS server.
 
+## Architecture & Code Quality
+
+ppicos is structured as a proper Python package with clean, readable code:
+
+- **Core orchestration**: `main.py` contains the `IcosFormat` class that manages the complete processing pipeline
+- **Configuration**: `filesettings.py` defines file type-specific settings (paths, column mappings, timestamp formats)
+- **CLI interface**: `cli.py` handles command-line argument parsing and processor selection
+- **Utilities**: Helper functions in `tools.py` and `logger.py` for file discovery, logging, and timestamp handling
+
+Recent improvements (v6.0.0) focused on code quality and readability:
+- Consolidated validation logic into single `_validate_file()` method
+- Consolidated export logic into single `_save_daily_file()` method  
+- Simplified logging with `Logger.section()` context manager (no parameter noise)
+- Removed dead code for cleaner codebase
+- PEP 8 compliant with modern Python patterns
+
+For detailed information on the data processing pipeline, component architecture, and design decisions, see [WORKFLOW.md](WORKFLOW.md).
+
 ## File settings
 
 The file settings in `filesettings.py` define how the respective filetype is modified.

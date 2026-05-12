@@ -166,14 +166,6 @@ class IcosFormat:
         else:
             self.logger.log_info(f"{self.logger.current_section}        * uncompressed ICOS file {csv_path} was not deleted")
 
-    def _detect_unique_dates(self, df, section_name):
-        """Detect unique dates in dataframe"""
-        unique_dates = list(df.index.date)
-        unique_dates = np.unique(unique_dates)
-        self.logger.log_info(f"{section_name}    Found {len(unique_dates)} unique dates in merged data:")
-        for ud in unique_dates:
-            self.logger.log_info(f"{section_name}        Found date {ud}")
-
     def _format_data(self, df) -> DataFrame:
         with self.logger.section('[formatting data]'):
             self.logger.log_info(f"{self.logger.current_section} Working on merged data ({len(df)} values "

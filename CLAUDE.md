@@ -121,7 +121,8 @@ The CLI automatically:
 
 **`logger.py` - Logging**
 - `Logger` class writes to both console and file (logs/ppicos_[filetype]_[timestamp].log)
-- `section_start()` / `section_end()` — Timing markers around major processing phases
+- `section()` context manager — Wraps processing phases with automatic timing and guaranteed cleanup via try/finally
+- Tracks `current_section` internally; no section_name parameter passing needed
 
 ## File Settings Dictionary
 
@@ -317,7 +318,10 @@ DIR_OUT_ICOS/
 - Updated entry point in `pyproject.toml`
 
 ### PHASE 4: Code Quality ✅
-- Fixed list comprehensions (proper syntax, improved readability)
-- Removed `inplace=True` in pandas operations (modern pattern)
-- Removed commented-out code blocks (cleaner codebase)
-- PEP 8 compliant
+- **Consolidated file validation**: Merged 3 validation methods into single `_validate_file()` with early returns
+- **Consolidated file export**: Merged 3 export methods into single `_save_daily_file()` handling CSV, compression, and cleanup
+- **Eliminated logging parameter noise**: Removed `section_name` parameter from 15+ methods by moving section context tracking to Logger instance variable
+- **Logger refactoring**: Converted section tracking to `Logger.current_section` attribute, changed `section()` from standalone function to context manager method
+- **Code cleanup**: Removed dead code (`_detect_unique_dates`), fixed list comprehensions, removed `inplace=True` in pandas, removed commented-out code blocks
+- **Result**: 56 lines saved in main.py (616 → 560), cleaner method signatures, improved readability
+- **PEP 8 compliant**

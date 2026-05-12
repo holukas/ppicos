@@ -75,11 +75,16 @@ The `IcosFormat` class contains the entire processing pipeline:
 - Configures ICOS timestamp column handling
 
 #### Run Method (orchestrates the pipeline)
-1. Calls `_generate_file_list()` → returns DataFrame of matching files
+1. Calls `_generate_file_list()` → returns DataFrame of matching files (validates each file with `_validate_file()`)
 2. Calls `_readfiles()` → reads raw data into merged DataFrame
 3. Calls `_format_data()` → transforms to ICOS format
-4. Calls `_export_data()` → saves daily output files
+4. Calls `_export_data()` → saves daily output files (exports with `_save_daily_file()`)
 5. Logs total runtime
+
+#### Key Consolidations
+- **File validation**: Single `_validate_file(filepath, start_date)` method replaces 3 separate validation checks
+- **File export**: Single `_save_daily_file(df, csv_path, zip_path)` method handles CSV save, compression, and cleanup
+- **Logging**: All methods now use `self.logger.section()` context manager; no section_name parameter passing
 
 ### 3. File Settings Module (`filesettings.py`)
 **Configuration for each file type**
@@ -336,18 +341,19 @@ Each processor run generates:
 Processing is organized into sections with automatic timing:
 
 ```python
-with logger.section(self.logger, '[section name]') as section_name:
+with self.logger.section('[section name]'):
     # Do work
     # Timing and logging automatically handled
 ```
 
 The context manager:
-- Records start time
+- Records section start time
 - Logs section start message
-- Executes work
+- Tracks current section internally (`self.logger.current_section`)
 - Measures elapsed time on exit
 - Logs section end with duration
 - Guarantees cleanup via try/finally
+- Restores previous section state on exit
 
 ### Error Handling
 
