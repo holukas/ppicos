@@ -2,7 +2,19 @@
 
 ## v6.0.0 | XX XXX 2026
 
-- XXX
+### Modernization & Quality Release
+
+- Dropped support for deprecated pandas date_parser parameter — now works with pandas 2.0+
+- Fixed ZipFile resource management: now uses context manager for proper cleanup
+- Restructured as a proper Python package with __init__.py — can be installed and imported directly
+- Converted all relative imports to absolute imports (from ppicos import module)
+- Renamed html.py to html_generator.py to avoid shadowing Python's built-in html module
+- Added command-line interface: ppicos --help, ppicos --list, ppicos --type 10_meteo
+- Can now selectively run processors: ppicos --type 12_meteo_forest_floor --instance 2
+- Fixed list comprehensions, removed deprecated pandas patterns, deleted dead code
+- Requires Python 3.12 or higher
+- Now installable via pip install . or uv sync
+- Rewrote CLAUDE.md with installation, CLI usage examples, and a summary of all four improvement phases
 
 ## v5.1.1 | 25 Jul 2025
 
