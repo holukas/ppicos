@@ -249,7 +249,7 @@ When updating a file type's settings (e.g., because raw file format changed):
 **Python version**: 3.12 or higher
 
 **Required packages**:
-- pandas ≥1.5.3 (data manipulation)
+- pandas ≥3.0.0 (data manipulation)
 - Jinja2 ≥3.1.2 (HTML template generation)
 - numpy (numeric operations, pulled in by pandas)
 

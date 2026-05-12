@@ -4,6 +4,10 @@
 
 ### Modernization & Quality Release
 
+**Requirements**:
+- Requires pandas 3.0+ (upgraded from 1.5.3)
+- Python 3.12 or higher
+
 - Dropped support for deprecated pandas date_parser parameter — now works with pandas 2.0+
 - Fixed ZipFile resource management: now uses context manager for proper cleanup
 - Restructured as a proper Python package with __init__.py — can be installed and imported directly

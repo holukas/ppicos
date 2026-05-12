@@ -7,7 +7,7 @@ license = {text = "MIT"}
 authors = [{name = "Lukas Hörtnagl", email = "holukas@ethz.ch"}]
 requires-python = ">=3.12"
 dependencies = [
-    "pandas>=1.5.3",
+    "pandas>=3.0.0",
     "Jinja2>=3.1.2",
 ]
 keywords = ["ICOS", "flux tower", "data processing", "CH-DAV"]
