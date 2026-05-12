@@ -134,67 +134,42 @@ class IcosFormat:
                                      f"(i) Data from {firstdate} to {lastdate} "
                                      f"({len(grp_df)} values, {len(grp_df.columns)} columns)")
 
-                # Save uncompressed ICOS file
-                self._save_uncompressed_icos_file(df=grp_df,
-                                                  outfilepath=csv_path,
-                                                  section_name=section_name)
-
-                # Save zipped ICOS file (if required)
-                self._save_zipped_icos_file(filepath_to_compress=csv_path,
-                                            outfilepath=zip_path,
-                                            section_name=section_name)
-
-                # Delete uncompressed ICOS file (if required)
-                self._delete_uncompressed_icos_file(outfilepath_uncompressed=csv_path,
-                                                    section_name=section_name)
+                # Save daily file (CSV, optionally zipped, optionally delete uncompressed)
+                self._save_daily_file(df=grp_df, csv_path=csv_path, zip_path=zip_path,
+                                     section_name=section_name)
 
                 # Get info about previous script runs
                 self._add_filename_to_filetype_logfile(filename=output_filename)
 
-    def _delete_uncompressed_icos_file(self, outfilepath_uncompressed, section_name) -> None:
-        """Delete uncompressed file if needed (optional)"""
-        if self.filesettings['OUTFILE_DELETE_UNCOMPRESSED']:
-            os.remove(outfilepath_uncompressed)
-            self.logger.log_info(f"{section_name}        * deleted uncompressed ICOS file: {outfilepath_uncompressed}")
-        else:
-            self.logger.log_info(f"{section_name}        * uncompressed ICOS file {outfilepath_uncompressed} was not deleted")
+    def _save_daily_file(self, df, csv_path, zip_path, section_name) -> None:
+        """Save daily file: CSV → optionally ZIP → optionally delete uncompressed"""
 
-    def _save_zipped_icos_file(self, filepath_to_compress, outfilepath, section_name) -> None:
-        """Saves compressed (zipped) ICOS file"""
-        if self.filesettings['OUTFILE_COMPRESSION']:
-
-            # Write to ZIP
-            with zf.ZipFile(outfilepath, 'w') as zipped_file:
-                zipped_file.write(filepath_to_compress, compress_type=zf.ZIP_DEFLATED,
-                                  arcname=os.path.basename(filepath_to_compress))
-            self.logger.log_info(f"{section_name}        * saved compressed ICOS ZIP file: {outfilepath}")
-        else:
-            self.logger.log_info(f"{section_name}        * no compressed ZIP file was created")
-
-    def _save_uncompressed_icos_file(self, df, outfilepath, section_name) -> None:
-        """ Saves uncompressed data as CSV
-        - File is saved w/ ICOS filename
-        - CSV is generated using quote arguments to output double quotes for header, index and NaNs
-        """
-
-        # check if we need to output the header column names to the file
-        header = True if self.filesettings['DATA_HEADER_OUTPUT_TO_FILE'] else False
-
-        # Save dataframe to file
-        # - note the quote arguments: these make sure that the header, row indices and also NANs
-        #   are output with double quotes. also, index=False b/c timestamp was inserted as regular column
-        # - na_rep is used to fix representation for NaNs in output csv file
-        #   for the ICOS files, NaN is used, in combination with the quote args NaN is output as "NaN"
-        #   we need it like this b/c we defined missing values for the files as "NaN"
-        df.to_csv(outfilepath,
+        # Write CSV with ICOS formatting
+        header = self.filesettings['DATA_HEADER_OUTPUT_TO_FILE']
+        df.to_csv(csv_path,
                   quotechar='"',
                   quoting=csv.QUOTE_NONNUMERIC,
                   index=False,
                   header=header,
                   na_rep='NaN',
                   lineterminator='\r\n')
+        self.logger.log_info(f"{section_name}        * saved uncompressed ICOS file: {csv_path}")
 
-        self.logger.log_info(f"{section_name}        * saved uncompressed ICOS file: {outfilepath}")
+        # Optionally compress to ZIP
+        if self.filesettings['OUTFILE_COMPRESSION']:
+            with zf.ZipFile(zip_path, 'w') as zipped_file:
+                zipped_file.write(csv_path, compress_type=zf.ZIP_DEFLATED,
+                                  arcname=os.path.basename(csv_path))
+            self.logger.log_info(f"{section_name}        * saved compressed ICOS ZIP file: {zip_path}")
+        else:
+            self.logger.log_info(f"{section_name}        * no compressed ZIP file was created")
+
+        # Optionally delete uncompressed CSV
+        if self.filesettings['OUTFILE_DELETE_UNCOMPRESSED']:
+            os.remove(csv_path)
+            self.logger.log_info(f"{section_name}        * deleted uncompressed ICOS file: {csv_path}")
+        else:
+            self.logger.log_info(f"{section_name}        * uncompressed ICOS file {csv_path} was not deleted")
 
     def _detect_unique_dates(self, df, section_name):
         """Detect unique dates in dataframe"""
