@@ -1,6 +1,19 @@
+import contextlib
 import logging
 import os
 import time
+
+
+@contextlib.contextmanager
+def section(logger, name):
+    """Context manager for section logging with timing"""
+    tic = time.time()
+    logger.log_info(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
+    try:
+        yield name
+    finally:
+        elapsed = time.time() - tic
+        logger.log_info(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
 
 
 class Logger(object):

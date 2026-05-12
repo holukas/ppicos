@@ -107,70 +107,64 @@ class IcosFormat:
 
     def _export_data(self, df):
         """Export data to ICOS daily files"""
+        with logger.section(self.logger, '[exporting daily files]') as section_name:
+            self.logger.log_info(f"{section_name} Working on merged data ({len(df)} values "
+                                 f"between {df.index[0]} and {df.index[-1]})")
+            self.logger.log_info(f"{section_name} Filetype logfile: {self.logfilepath_alreadyprocessed}")
 
-        # Start section
-        section_name = '[exporting daily files]'
-        tic = logger.section_start(logger=self.logger, section_name=section_name)
-        self.logger.log_info(f"{section_name} Working on merged data ({len(df)} values "
-                             f"between {df.index[0]} and {df.index[-1]})")
-        self.logger.log_info(f"{section_name} Filetype logfile: {self.logfilepath_alreadyprocessed}")
+            # Group data by date, this works because the
+            # timestamp index TIMESTAMP_MIDDLE is used for grouping
+            grouped_daily = df.groupby(df.index.date)
+            for grp_date, grp_df in grouped_daily:
 
-        # Group data by date, this works because the
-        # timestamp index TIMESTAMP_MIDDLE is used for grouping
-        grouped_daily = df.groupby(df.index.date)
-        for grp_date, grp_df in grouped_daily:
+                # Make filename for ICOS
+                outfilename_icos = self._create_icos_filename(year=grp_date.year, month=grp_date.month, day=grp_date.day)
 
-            # Make filename for ICOS
-            outfilename_icos = self._create_icos_filename(year=grp_date.year, month=grp_date.month, day=grp_date.day)
+                # Full output path to output files
+                # Detect output path with subdir from filedate
+                outpath = tools.get_subdir_from_date(date=grp_date, outpath=self.filesettings['DIR_OUT_ICOS'])
+                icos_uncompressed_outfilepath = outpath / outfilename_icos
+                icos_zipped_outfilepath = outpath / f"{Path(outfilename_icos).stem}.zip"
 
-            # Full output path to output files
-            # Detect output path with subdir from filedate
-            outpath = tools.get_subdir_from_date(date=grp_date, outpath=self.filesettings['DIR_OUT_ICOS'])
-            icos_uncompressed_outfilepath = outpath / outfilename_icos
-            icos_zipped_outfilepath = outpath / f"{Path(outfilename_icos).stem}.zip"
+                # Detect which filename to write to the filetype processing logfile
+                filename_for_filetype_logfile = \
+                    str(icos_zipped_outfilepath.name) \
+                        if self.filesettings['OUTFILE_COMPRESSION'] \
+                        else str(icos_uncompressed_outfilepath.name)
 
-            # Detect which filename to write to the filetype processing logfile
-            filename_for_filetype_logfile = \
-                str(icos_zipped_outfilepath.name) \
-                    if self.filesettings['OUTFILE_COMPRESSION'] \
-                    else str(icos_uncompressed_outfilepath.name)
+                # Check if filename already processed, if yes skip this file
+                checkok = self._check_if_already_processed(filename=filename_for_filetype_logfile,
+                                                           grp_date=grp_date,
+                                                           section_name=section_name)
+                if not checkok:
+                    continue
 
-            # Check if filename already processed, if yes skip this file
-            checkok = self._check_if_already_processed(filename=filename_for_filetype_logfile,
-                                                       grp_date=grp_date,
-                                                       section_name=section_name)
-            if not checkok:
-                continue
+                self.logger.log_info(f"{section_name}    --> Creating daily file {filename_for_filetype_logfile} "
+                                     f"for date {grp_date}")
 
-            self.logger.log_info(f"{section_name}    --> Creating daily file {filename_for_filetype_logfile} "
-                                 f"for date {grp_date}")
+                # Basic data info
+                firstdate = grp_df[self.icos_timestamp_col][0]
+                lastdate = grp_df[self.icos_timestamp_col][-1]
+                self.logger.log_info(f"{section_name}        "
+                                     f"(i) Data from {firstdate} to {lastdate} "
+                                     f"({len(grp_df)} values, {len(grp_df.columns)} columns)")
 
-            # Basic data info
-            firstdate = grp_df[self.icos_timestamp_col][0]
-            lastdate = grp_df[self.icos_timestamp_col][-1]
-            self.logger.log_info(f"{section_name}        "
-                                 f"(i) Data from {firstdate} to {lastdate} "
-                                 f"({len(grp_df)} values, {len(grp_df.columns)} columns)")
+                # Save uncompressed ICOS file
+                self._save_uncompressed_icos_file(df=grp_df,
+                                                  outfilepath=icos_uncompressed_outfilepath,
+                                                  section_name=section_name)
 
-            # Save uncompressed ICOS file
-            self._save_uncompressed_icos_file(df=grp_df,
-                                              outfilepath=icos_uncompressed_outfilepath,
-                                              section_name=section_name)
+                # Save zipped ICOS file (if required)
+                self._save_zipped_icos_file(filepath_to_compress=icos_uncompressed_outfilepath,
+                                            outfilepath=icos_zipped_outfilepath,
+                                            section_name=section_name)
 
-            # Save zipped ICOS file (if required)
-            self._save_zipped_icos_file(filepath_to_compress=icos_uncompressed_outfilepath,
-                                        outfilepath=icos_zipped_outfilepath,
-                                        section_name=section_name)
+                # Delete uncompressed ICOS file (if required)
+                self._delete_uncompressed_icos_file(outfilepath_uncompressed=icos_uncompressed_outfilepath,
+                                                    section_name=section_name)
 
-            # Delete uncompressed ICOS file (if required)
-            self._delete_uncompressed_icos_file(outfilepath_uncompressed=icos_uncompressed_outfilepath,
-                                                section_name=section_name)
-
-            # Get info about previous script runs
-            self._add_filename_to_filetype_logfile(filename=filename_for_filetype_logfile)
-
-        # End section
-        logger.section_end(logger=self.logger, section_name=section_name, tic=tic)
+                # Get info about previous script runs
+                self._add_filename_to_filetype_logfile(filename=filename_for_filetype_logfile)
 
     def _delete_uncompressed_icos_file(self, outfilepath_uncompressed, section_name) -> None:
         """Delete uncompressed file if needed (optional)"""
@@ -228,44 +222,38 @@ class IcosFormat:
             self.logger.log_info(f"{section_name}        Found date {ud}")
 
     def _format_data(self, df) -> DataFrame:
+        with logger.section(self.logger, '[formatting data]') as section_name:
+            self.logger.log_info(f"{section_name} Working on merged data ({len(df)} values "
+                                 f"between {df.index[0]} and {df.index[-1]})")
 
-        # Start section
-        section_name = '[formatting data]'
-        tic = logger.section_start(logger=self.logger, section_name=section_name)
-        self.logger.log_info(f"{section_name} Working on merged data ({len(df)} values "
-                             f"between {df.index[0]} and {df.index[-1]})")
+            # Rename columns
+            df = self._rename_columns(df=df, section_name=section_name)
 
-        # Rename columns
-        df = self._rename_columns(df=df, section_name=section_name)
+            # Remove duplicate indexes, keep last
+            df = self._remove_duplicates(df=df, section_name=section_name)
 
-        # Remove duplicate indexes, keep last
-        df = self._remove_duplicates(df=df, section_name=section_name)
+            # Keep renamed columns only
+            df = self._keep_only_renamed_columns(df=df, section_id=section_name)
 
-        # Keep renamed columns only
-        df = self._keep_only_renamed_columns(df=df, section_id=section_name)
+            # Remove suffix from variables names
+            df = self._delete_suffix_from_variable_names(df=df, section_name=section_name)
 
-        # Remove suffix from variables names
-        df = self._delete_suffix_from_variable_names(df=df, section_name=section_name)
+            # Make sure timestamp is continuous
+            df = self._reindex_data_to_continuous_timestamp(df=df, section_name=section_name)
 
-        # Make sure timestamp is continuous
-        df = self._reindex_data_to_continuous_timestamp(df=df, section_name=section_name)
+            # Insert ICOS timestamp as column for correct CSV export
+            df = self._insert_icos_timestamp(
+                df=df, keep_non_icos_timestamp=self.filesettings['DATA_TIMESTAMP_KEEP_NON_ICOS'],
+                section_name=section_name)
 
-        # Insert ICOS timestamp as column for correct CSV export
-        df = self._insert_icos_timestamp(
-            df=df, keep_non_icos_timestamp=self.filesettings['DATA_TIMESTAMP_KEEP_NON_ICOS'],
-            section_name=section_name)
+            # Remove data from today's date
+            df = self._remove_today_data(df=df, section_name=section_name)
 
-        # Remove data from today's date
-        df = self._remove_today_data(df=df, section_name=section_name)
+            # Convert original timestamp index to TIMESTAMP_MIDDLE, for exporting correct daily files
+            df = self._convert_index_to_middle_timestamp(df=df, section_name=section_name)
 
-        # Convert original timestamp index to TIMESTAMP_MIDDLE, for exporting correct daily files
-        df = self._convert_index_to_middle_timestamp(df=df, section_name=section_name)
-
-        # Remove partial days, when timestamp does not cover the full day
-        df = self._remove_partial_days(df=df, section_name=section_name)
-
-        # End section
-        logger.section_end(logger=self.logger, section_name=section_name, tic=tic)
+            # Remove partial days, when timestamp does not cover the full day
+            df = self._remove_partial_days(df=df, section_name=section_name)
 
         return df
 
@@ -398,22 +386,16 @@ class IcosFormat:
         return df
 
     def _readfiles(self, filepaths: list):
+        with logger.section(self.logger, '[reading file data]') as section_name:
+            # Merge data from all files
+            merged_df = pd.DataFrame()
+            for filepath in filepaths:
+                file_df = self._readfile(filepath=filepath, section_name=section_name)
+                merged_df = pd.concat([merged_df, file_df], axis=0)  # add to data from this day
 
-        # Start section
-        section_name = '[reading file data]'
-        tic = logger.section_start(logger=self.logger, section_name=section_name)
-
-        # Merge data from all files
-        merged_df = pd.DataFrame()
-        for filepath in filepaths:
-            file_df = self._readfile(filepath=filepath, section_name=section_name)
-            merged_df = pd.concat([merged_df, file_df], axis=0)  # add to data from this day
-
-        # End section
-        self.logger.log_info(f"{section_name}   {'-' * 40}\n"
-                             f"{section_name}   {len(merged_df)} records are available "
-                             f"for further processing.")
-        logger.section_end(logger=self.logger, section_name=section_name, tic=tic)
+            self.logger.log_info(f"{section_name}   {'-' * 40}\n"
+                                 f"{section_name}   {len(merged_df)} records are available "
+                                 f"for further processing.")
 
         return merged_df
 
@@ -530,67 +512,62 @@ class IcosFormat:
 
     def _generate_file_list(self):
         """Search valid files and store info in dataframe"""
+        with logger.section(self.logger, '[generate_file_list]') as section_name:
+            # Expand time range to include previous date,
+            # in case complementary data from the previous date is needed
+            if self.filesettings['DATA_COMPLEMENT_WITH_PREVIOUS_DATE']:
+                self.max_age_days += 1
 
-        # Start section
-        section_name = '[generate_file_list]'
-        tic = logger.section_start(logger=self.logger, section_name=section_name)
+            # Set source dirs for searching files
+            search_dirs, search_firstdate = self._set_monthly_search_folders(section_name=section_name)
 
-        # Expand time range to include previous date,
-        # in case complementary data from the previous date is needed
-        if self.filesettings['DATA_COMPLEMENT_WITH_PREVIOUS_DATE']:
-            self.max_age_days += 1
+            # Make list of all files in search dirs
+            fileslist = self._search_files(search_dirs=search_dirs)
 
-        # Set source dirs for searching files
-        search_dirs, search_firstdate = self._set_monthly_search_folders(section_name=section_name)
+            # Dataframe to collect valid files
+            files_df = pd.DataFrame()
 
-        # Make list of all files in search dirs
-        fileslist = self._search_files(search_dirs=search_dirs)
+            for filepath in fileslist:
 
-        # Dataframe to collect valid files
-        files_df = pd.DataFrame()
+                kwargs = dict(section_name=section_name)
 
-        for filepath in fileslist:
+                # Check filename ID
+                checkok = self._check_filename_id(filename=filepath.name, **kwargs)
+                if not checkok: continue
 
-            kwargs = dict(section_name=section_name)
+                # Check if file has read permissions
+                checkok = self._check_file_read_permission(filepath=filepath, **kwargs)
+                if not checkok: continue
 
-            # Check filename ID
-            checkok = self._check_filename_id(filename=filepath.name, **kwargs)
-            if not checkok: continue
+                # Check if filedate is within search window
+                checkok = self._check_date_in_filename(filename=filepath.name, search_firstdate=search_firstdate, **kwargs)
+                if not checkok: continue
 
-            # Check if file has read permissions
-            checkok = self._check_file_read_permission(filepath=filepath, **kwargs)
-            if not checkok: continue
+                # Get date from filename
+                filename_dt = tools.get_datetime_from_filename(filename=filepath.name, filesettings=self.filesettings)
 
-            # Check if filedate is within search window
-            checkok = self._check_date_in_filename(filename=filepath.name, search_firstdate=search_firstdate, **kwargs)
-            if not checkok: continue
+                # Add file to df
+                # the index is the date contained in the filename
+                files_df.loc[filename_dt, 'RUN_ID'] = self.run_id
+                files_df.loc[filename_dt, 'RUN_DATETIME'] = self.run_start_dt
+                files_df.loc[filename_dt, 'ETH_FILENAME'] = filepath.name
+                files_df.loc[filename_dt, 'ETH_FILEPATH'] = filepath
+                files_df.loc[filename_dt, 'ETH_FILEDATE'] = filename_dt.date()
 
-            # Get date from filename
-            filename_dt = tools.get_datetime_from_filename(filename=filepath.name, filesettings=self.filesettings)
+            files_df = files_df.sort_index()
 
-            # Add file to df
-            # the index is the date contained in the filename
-            files_df.loc[filename_dt, 'RUN_ID'] = self.run_id
-            files_df.loc[filename_dt, 'RUN_DATETIME'] = self.run_start_dt
-            files_df.loc[filename_dt, 'ETH_FILENAME'] = filepath.name
-            files_df.loc[filename_dt, 'ETH_FILEPATH'] = filepath
-            files_df.loc[filename_dt, 'ETH_FILEDATE'] = filename_dt.date()
+            # Check if there is at least one file available, otherwise stop script
+            checkok = self._check_if_files_available(files_df=files_df)
+            if not checkok: sys.exit(-1)
 
-        files_df = files_df.sort_index()
-
-        # Check if there is at least one file available, otherwise stop script
-        checkok = self._check_if_files_available(files_df=files_df)
-        if not checkok: sys.exit(-1)
-
-        # Log
-        available_files = files_df['ETH_FILEPATH'].to_list()
-        for file in available_files:
-            msg = f"{section_name}  ++ ADDING FILE   {file}   - for further processing"
-            self.logger.log_info(msg)
-        self.logger.log_info(f"{section_name}   {'-' * 40}\n"
-                             f"{section_name}   {len(files_df)} files are available "
-                             f"for further processing.")
-        logger.section_end(logger=self.logger, section_name=section_name, tic=tic)
+            # Log
+            available_files = files_df['ETH_FILEPATH'].to_list()
+            for file in available_files:
+                msg = f"{section_name}  ++ ADDING FILE   {file}   - for further processing"
+                self.logger.log_info(msg)
+            self.logger.log_info(f"{section_name}   {'-' * 40}\n"
+                                 f"{section_name}   {len(files_df)} files are available "
+                                 f"for further processing.")
 
         return files_df
 
