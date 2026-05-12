@@ -449,27 +449,32 @@ class IcosFormat:
                     files.append(filepath)
         return files
 
-    def _check_filename_id(self, filename, section_name: str = None) -> bool:
-        if not fnmatch.fnmatch(filename, self.filesettings['FILENAME_ID']):
-            msg = f"{section_name} (!) SKIPPING FILE {filename} " \
-                  f"- not matching pattern ({self.filesettings['FILENAME_ID']})"
-            self.logger.log_info(msg)
-            checkok = False
-        else:
-            checkok = True
-        return checkok
+    def _validate_file(self, filepath, start_date, section_name: str = None) -> bool:
+        """Validate file: check name pattern, read permission, and date range"""
+        filename = filepath.name
 
-    def _check_date_in_filename(self, filename: str, search_firstdate, section_name: str = None) -> bool:
-        """Ignore files with filenames that are older than search date"""
-        file_date = tools.get_datetime_from_filename(filename=filename, filesettings=self.filesettings)
-        file_date = file_date.date()
-        if (file_date >= search_firstdate):
-            checkok = True
-        else:
-            checkok = False
-            msg = f"{section_name} (!) SKIPPING FILE {filename} - filedate {file_date} older than start date {search_firstdate}"
-            self.logger.log_info(msg)
-        return checkok
+        # Check filename matches expected pattern
+        if not fnmatch.fnmatch(filename, self.filesettings['FILENAME_ID']):
+            self.logger.log_info(f"{section_name} (!) SKIPPING FILE {filename} "
+                                 f"- not matching pattern ({self.filesettings['FILENAME_ID']})")
+            return False
+
+        # Check file is readable
+        try:
+            with open(filepath) as f:
+                f.read(5)
+        except PermissionError as err:
+            self.logger.log_info(f"{section_name} (!) SKIPPING FILE - NO READ PERMISSION: {filepath} ({err})")
+            return False
+
+        # Check filedate is within search window
+        file_date = tools.get_datetime_from_filename(filename=filename, filesettings=self.filesettings).date()
+        if file_date < start_date:
+            self.logger.log_info(f"{section_name} (!) SKIPPING FILE {filename} "
+                                 f"- filedate {file_date} older than start date {start_date}")
+            return False
+
+        return True
 
     def _remove_files_already_processed(self, df, section_name) -> DataFrame:
         """Remove files that were already processed"""
@@ -480,18 +485,6 @@ class IcosFormat:
               f"{df.loc[already_processed].sort_index()}"
         self.logger.log_info(msg)
         return df
-
-    def _check_file_read_permission(self, filepath, section_name) -> bool:
-        """Remove files that cannot be accessed"""
-        try:
-            with open(filepath) as f:
-                s = f.read(5)
-            checkok = True
-        except PermissionError as err:
-            msg = f"{section_name} (!) SKIPPING FILE - NO READ PERMISSION: {filepath} ({err})"
-            self.logger.log_info(msg)
-            checkok = False
-        return checkok
 
     def _generate_file_list(self):
         """Search valid files and store info in dataframe"""
@@ -512,19 +505,9 @@ class IcosFormat:
 
             for filepath in files:
 
-                kwargs = dict(section_name=section_name)
-
-                # Check filename ID
-                checkok = self._check_filename_id(filename=filepath.name, **kwargs)
-                if not checkok: continue
-
-                # Check if file has read permissions
-                checkok = self._check_file_read_permission(filepath=filepath, **kwargs)
-                if not checkok: continue
-
-                # Check if filedate is within search window
-                checkok = self._check_date_in_filename(filename=filepath.name, search_firstdate=start_date, **kwargs)
-                if not checkok: continue
+                # Validate file (pattern, permissions, date range)
+                if not self._validate_file(filepath=filepath, start_date=start_date, section_name=section_name):
+                    continue
 
                 # Get date from filename
                 file_date = tools.get_datetime_from_filename(filename=filepath.name, filesettings=self.filesettings)
