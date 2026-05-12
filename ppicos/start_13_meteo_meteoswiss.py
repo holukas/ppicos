@@ -1,7 +1,7 @@
 import sys
 
-import filesettings
-from main import IcosFormat
+from ppicos import filesettings
+from ppicos.main import IcosFormat
 
 MAX_AGE_DAYS = 14
 FILESETTINGS = filesettings.f_13_meteo_meteoswiss()

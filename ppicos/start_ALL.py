@@ -1,8 +1,8 @@
 import datetime
 import sys
 
-import filesettings
-from main import IcosFormat
+from ppicos import filesettings
+from ppicos.main import IcosFormat
 
 script_start = datetime.datetime.now()
 

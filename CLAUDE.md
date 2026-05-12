@@ -13,6 +13,56 @@ No raw data values are modified—only formatting transformations are applied:
 - File compression to ZIP (optional)
 - Extraction of daily data from multi-day raw files
 
+## Installation & Usage
+
+### Prerequisites
+- Python 3.12 or higher
+- uv (recommended) or pip
+
+### Installation
+
+Install via uv:
+```bash
+uv sync
+```
+
+Or via pip:
+```bash
+pip install .
+```
+
+### Running ppicos
+
+After installation, use the `ppicos` command:
+
+```bash
+# Show help and available options
+ppicos --help
+
+# List all available file types
+ppicos --list
+
+# Run all file types
+ppicos
+
+# Run specific file type
+ppicos --type 10_meteo
+
+# Run forest floor with specific instance
+ppicos --type 12_meteo_forest_floor --instance 2
+
+# Run with custom max age (days)
+ppicos --max-age-days 30
+```
+
+The CLI automatically:
+1. Searches source directories for files within the date window
+2. Reads matching raw files
+3. Merges and formats to ICOS standards
+4. Exports daily CSV files
+5. Tracks processed files to avoid re-processing
+6. Logs all operations
+
 ## Architecture
 
 ### Core Components
@@ -41,11 +91,18 @@ No raw data values are modified—only formatting transformations are applied:
 - Each returns a dictionary with ~25 settings keys
 - Settings control: source/output directories, filename patterns, timestamp formats, column mappings, compression behavior
 
-**`start_*.py` - Processor Scripts**
+**`start_*.py` - Processor Scripts (Legacy)**
 - Scripts like `start_10_meteo.py`, `start_12_meteo_forest_floor.py`, etc.
 - Each imports a file type function from `filesettings.py` and instantiates `IcosFormat` with those settings
-- Called by automated daily cron jobs
+- Can still be called individually for backward compatibility
 - Example: `start_12_meteo_forest_floor.py` loops through 5 forest floors × 2 tables (10 file type combinations)
+- **Note**: Use the `ppicos` CLI command instead (see Installation & Usage above)
+
+**`cli.py` - Command-line Interface (Recommended)**
+- Main entry point for ppicos package
+- Handles argument parsing (--type, --instance, --list, etc.)
+- Called via `ppicos` command after installation
+- Uses consistent logging and error handling across all processors
 
 **`tools.py` - Utility Functions**
 - `set_search_window()` — Defines date range: now - max_age_days to yesterday
@@ -153,15 +210,19 @@ The script will:
        return file_info
    ```
 
-2. **Create start script** `start_XX_description.py`:
+2. **Create start script** `start_XX_description.py` (optional, for backward compatibility):
    ```python
-   import filesettings
-   from main import IcosFormat
+   import sys
+   from ppicos import filesettings
+   from ppicos.main import IcosFormat
    
    MAX_AGE_DAYS = 14
    icosformat = IcosFormat(filesettings=filesettings.f_XX_description(), max_age_days=MAX_AGE_DAYS)
    icosformat.run()
+   sys.exit()
    ```
+   
+   **Recommended**: Use the CLI instead (`ppicos --type XX_description`)
 
 3. **Test locally** with temporary directories before pointing to production network paths in `filesettings.py`
 
@@ -176,11 +237,24 @@ When updating a file type's settings (e.g., because raw file format changed):
 
 ## Dependencies
 
-- pandas (data manipulation)
-- numpy (numeric operations)
-- Built-in modules: csv, datetime, fnmatch, os, sys, zipfile, pathlib
+**Python version**: 3.12 or higher
 
-Install via: `pip install -r requirements.txt` (if exists) or conda environment.
+**Required packages**:
+- pandas ≥1.5.3 (data manipulation)
+- Jinja2 ≥3.1.2 (HTML template generation)
+- numpy (numeric operations, pulled in by pandas)
+
+**Built-in modules**: csv, datetime, fnmatch, os, sys, zipfile, pathlib, argparse
+
+**Package manager**:
+- Recommended: [uv](https://docs.astral.sh/uv/) (faster, simpler)
+  ```bash
+  uv sync
+  ```
+- Alternative: pip
+  ```bash
+  pip install -e .
+  ```
 
 ## Output Structure
 
@@ -213,4 +287,29 @@ DIR_OUT_ICOS/
 - Windows network paths should use forward slashes (e.g., `//server/share`)
 
 **Re-processing files**
-- Edit `ppicos_[filetype]_files-already-processed.log` to remove filenames, then re-run script
+- Edit `ppicos_[filetype]_files-already-processed.log` to remove filenames, then re-run processor
+
+## Recent Improvements (v6.0.0)
+
+### PHASE 1: Critical Compatibility ✅
+- Removed deprecated `date_parser` parameter (pandas 2.0+ compatible)
+- Fixed ZipFile resource management (proper context manager usage)
+
+### PHASE 2: Package Structure ✅
+- Created proper Python package with `__init__.py`
+- Converted all relative imports to absolute imports (`from ppicos import module`)
+- Renamed `html.py` to `html_generator.py` (avoid shadowing built-in module)
+- Ready for `pip install` and `uv sync`
+
+### PHASE 3: CLI Enhancement ✅
+- Created `cli.py` with full argument parsing
+- Added `ppicos` command-line interface
+- Support for selective processor execution (`--type`, `--instance`)
+- Discoverability (`--help`, `--list`)
+- Updated entry point in `pyproject.toml`
+
+### PHASE 4: Code Quality ✅
+- Fixed list comprehensions (proper syntax, improved readability)
+- Removed `inplace=True` in pandas operations (modern pattern)
+- Removed commented-out code blocks (cleaner codebase)
+- PEP 8 compliant

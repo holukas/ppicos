@@ -20,15 +20,15 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-import html
+from ppicos import html_generator as html
 
 pd.options.display.width = None
 pd.options.display.max_columns = None
 # pd.set_option('display.max_rows', 3000)
 pd.set_option('display.max_columns', 3000)
-import logger
-import tools
-from logger import Logger
+from ppicos import logger
+from ppicos import tools
+from ppicos.logger import Logger
 
 
 class IcosFormat:
@@ -73,9 +73,6 @@ class IcosFormat:
 
         # Export data as daily files
         self._export_data(df=merged_df)
-
-        # # Make HTML overview list
-        # self._make_html()
 
         # Script runtime
         script_runtime = datetime.datetime.now() - self.run_start_dt
@@ -190,16 +187,10 @@ class IcosFormat:
         if self.filesettings['OUTFILE_COMPRESSION']:
 
             # Write to ZIP
-            zipped_file = zf.ZipFile(outfilepath, 'w')
-            # note the arcname argument: it enables to directly zip the file w/o including the
-            # file-containing folder in the zip file
-            zipped_file.write(filepath_to_compress, compress_type=zf.ZIP_DEFLATED,
-                              arcname=os.path.basename(filepath_to_compress))
-            zipped_file.close()
+            with zf.ZipFile(outfilepath, 'w') as zipped_file:
+                zipped_file.write(filepath_to_compress, compress_type=zf.ZIP_DEFLATED,
+                                  arcname=os.path.basename(filepath_to_compress))
             self.logger.log_info(f"{section_name}        * saved compressed ICOS ZIP file: {outfilepath}")
-
-            # f_hash = self.hash_value_for_file(file_full_path=outfilepath_zip)
-            # self.file_list_df.loc[orig_filedate, 'saved_icos_zip_file_hash'] = '{0}'.format(f_hash)
         else:
             self.logger.log_info(f"{section_name}        * no compressed ZIP file was created")
 
@@ -289,8 +280,7 @@ class IcosFormat:
         df = df.loc[df['__DATE_AUX__'].isin(okdates.index)].copy()
         df = df.drop('__DATE_AUX__', axis=1)
         if len(notokdates) > 0:
-            removed_dates = []
-            [removed_dates.append(f"{x}") for x in notokdates.index]
+            removed_dates = [f"{x}" for x in notokdates.index]
             self.logger.log_info(f"{section_name}    * removed dates with timestamps not covering the "
                                  f"full day (partial days) {removed_dates}")
         else:
@@ -306,8 +296,7 @@ class IcosFormat:
         is_today = ~is_not_today
 
         if np.sum(is_today) > 0:
-            removed_dt = []
-            [removed_dt.append(f"{x}") for x in df[is_today].index]
+            removed_dt = [f"{x}" for x in df[is_today].index]
             self.logger.log_info(f"{section_name}    * removed {np.sum(is_today)} records "
                                  f"with today's date (today's data always ignored) {removed_dt}")
         else:
@@ -382,7 +371,7 @@ class IcosFormat:
     def _rename_columns(self, df, section_name) -> DataFrame:
         if self.filesettings['DATA_RENAME_COLUMNS']:
             for old, new in self.filesettings['DATA_RENAME_COLUMNS'].items():
-                df.rename(index=str, columns={old: new}, inplace=True)
+                df = df.rename(index=str, columns={old: new})
             self.logger.log_info(f"{section_name}    * renamed columns: "
                                  f"{self.filesettings['DATA_RENAME_COLUMNS']}")
         else:
@@ -430,14 +419,8 @@ class IcosFormat:
 
     def _readfile(self, filepath, section_name: str = None):
 
-        # kudos: https://stackoverflow.com/a/46545843
-        dateparse = lambda date: pd.to_datetime(date, format=self.filesettings['DATA_TIMESTAMP_FORMAT'],
-                                                errors='coerce')
-
         # read data to df
         filedata_df = pd.read_csv(filepath,
-                                  parse_dates=True,
-                                  date_parser=dateparse,
                                   index_col=self.filesettings['DATA_TIMESTAMP_COL'],
                                   header=self.filesettings['DATA_HEADER_ROWS'],
                                   skiprows=self.filesettings['DATA_SKIP_ROWS'],
@@ -446,8 +429,10 @@ class IcosFormat:
                                   on_bad_lines='skip',
                                   na_values=['NAN', 'inf'])  # 'inf' added in v4.0.15
 
-        # # Indexes of rows that contain 'inf'
-        # data_df.index[np.isinf(data_df).any(1)]
+        # Convert index to datetime (replaces deprecated date_parser parameter)
+        filedata_df.index = pd.to_datetime(filedata_df.index,
+                                           format=self.filesettings['DATA_TIMESTAMP_FORMAT'],
+                                           errors='coerce')
 
         # Log
         n_rows = filedata_df.shape[0]
@@ -467,10 +452,6 @@ class IcosFormat:
                     f"{section_name}       (!)WARNING column {col} could not be converted to numeric ({e}), "
                     f"instead the column was converted to string")
                 filedata_df[col] = filedata_df[col].astype(str)
-
-        # # NOT DONE FOR ICOS FILES: fill date range, no date gaps, needs freq
-        # first_date = data_df.index[0]
-        # last_date = data_df.index[-1]
 
         return filedata_df
 
@@ -492,20 +473,6 @@ class IcosFormat:
             self.logger.log_info(f"{section_name}      DIR {ix}: {search_dir}")
 
         return search_dirs, search_firstdate
-
-    # def _check_read_permission(self, search_dir: str, section_name: str = None) -> bool:
-    #     """Check folder read permission"""
-    #     checkok = False
-    #     try:
-    #         # If search dir exists, try to access it
-    #         if os.path.isdir(search_dir):
-    #             os.listdir(search_dir)
-    #             checkok = True
-    #     except PermissionError as err:
-    #         self.logger.log_info(f"{section_name} (!) SKIPPING SEARCH FOLDER {search_dir} "
-    #                              f"- no read permission on server ({err})")
-    #         checkok = False
-    #     return checkok
 
     def _search_files(self, search_dirs) -> list:
         """Make list of all files in search dirs, store complete path to file"""
