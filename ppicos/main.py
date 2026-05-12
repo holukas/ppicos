@@ -612,7 +612,6 @@ class IcosFormat:
         logpath = tools.get_subdir_from_date(
             date=self.run_start_dt,
             outpath=self.filesettings['DIR_OUT_ICOS'] / self.filesettings['DIR_OUT_LOGFILE'])
-        tools.check_if_path_exists(path=logpath)
         logger = Logger(run_id=self.run_id,
                         logdir=logpath,
                         filetype=self.filesettings['FILE_FILEGROUP'])  # initialize logging
@@ -622,7 +621,10 @@ class IcosFormat:
         logger.log_info('START TIME:    {}'.format(self.run_start_datestr))
         logger.log_info('RUN ID:        {}'.format(self.run_id))
         logger.log_info('LOG FILE PATH: {}'.format(logpath))
-        tools.print_settings_dict(settings_dict=self.filesettings, logger=logger)  # Log and print settings
-        # Source folder, for testing relative to the script folder
+        logger.log_info("\n" + "-" * 60)
+        logger.log_info("FOUND SETTINGS FOR THIS RUN")
+        for key, value in self.filesettings.items():
+            logger.log_info("{}: {}".format(key, value))
+        logger.log_info("-" * 60)
         logger.log_info('\nsource dir:  {}'.format(self.filesettings['DIR_SOURCE_FILES']))
         return logger
