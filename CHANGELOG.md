@@ -15,6 +15,8 @@
 - Refactored section logging with context manager — reduced boilerplate, guaranteed cleanup even on errors
 - Simplified variable names in main.py for better readability (csv_path, zip_path, output_filename, etc.)
 - Removed dead code: hash_value_for_file(), check_if_path_exists(), print_settings_dict() wrapper
+- Removed pandas display configuration bloat and unused section timing functions
+- Simplified module docstring in main.py — removed ASCII art box formatting
 - Requires Python 3.12 or higher
 - Now installable via pip install . or uv sync
 - Rewrote CLAUDE.md with installation, CLI usage examples, and a summary of all four improvement phases

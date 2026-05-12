@@ -1,13 +1,4 @@
-"""
-
-=======
-ppicos
-=======
-
-Post-processing of raw data files:
-Format original raw data files to ICOS-compliant format.
-
-"""
+"""Post-processing of raw data files to ICOS-compliant format."""
 import csv
 import datetime
 import fnmatch
@@ -21,11 +12,6 @@ import pandas as pd
 from pandas import DataFrame
 
 from ppicos import html_generator as html
-
-pd.options.display.width = None
-pd.options.display.max_columns = None
-# pd.set_option('display.max_rows', 3000)
-pd.set_option('display.max_columns', 3000)
 from ppicos import logger
 from ppicos import tools
 from ppicos.logger import Logger

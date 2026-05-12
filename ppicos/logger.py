@@ -40,15 +40,3 @@ class Logger(object):
         print(record)
 
         return None
-
-
-def section_start(logger, section_name):
-    tic = time.time()
-    logger.log_info("\n\n\n{}\n{} SECTION START".format('-' * 80, section_name))
-    return tic
-
-
-def section_end(logger, section_name, tic):
-    section_runtime = time.time() - tic
-    logger.log_info('{} SECTION END. Runtime: {:.4f}s'.format(section_name, section_runtime))
-    return None
