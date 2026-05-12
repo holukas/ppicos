@@ -4,39 +4,43 @@ import os
 import time
 
 
-@contextlib.contextmanager
-def section(logger, name):
-    """Context manager for section logging with timing"""
-    tic = time.time()
-    logger.log_info(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
-    try:
-        yield name
-    finally:
-        elapsed = time.time() - tic
-        logger.log_info(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
-
-
 class Logger(object):
+    """Logger that outputs to both console and file with automatic section tracking"""
+
     def __init__(self, run_id, logdir, filetype):
         super(Logger, self).__init__()
 
-        # create logger
+        # Set up file logging
         outfile = os.path.join(logdir, run_id)
         logfile = '{}_{}.log'.format(outfile, filetype)
         logger = logging.getLogger(logfile)
         logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')  # create formatter for handlers
-        # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        # create file handler
-        fh = logging.FileHandler(logfile, mode='w')  # create file handler
-        fh.setLevel(logging.INFO)  # logs info messages and above
-        fh.setFormatter(formatter)  # add formatter to the handler
-        logger.addHandler(fh)  # add the handler to logger
+        formatter = logging.Formatter('%(message)s')
+        fh = logging.FileHandler(logfile, mode='w')
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
         self.logger = logger
 
+        # Track current section for context-aware logging
+        self.current_section = ''
+
     def log_info(self, record):
-        # outputs to console and log file
+        """Output record to console and log file"""
         self.logger.info(record)
         print(record)
 
-        return None
+    @contextlib.contextmanager
+    def section(self, name):
+        """Context manager for section logging with automatic timing and cleanup"""
+        tic = time.time()
+        previous_section = self.current_section
+        self.current_section = name
+
+        self.log_info(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
+        try:
+            yield
+        finally:
+            elapsed = time.time() - tic
+            self.log_info(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
+            self.current_section = previous_section
