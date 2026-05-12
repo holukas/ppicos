@@ -17,6 +17,7 @@
 - Removed dead code: hash_value_for_file(), check_if_path_exists(), print_settings_dict() wrapper
 - Removed pandas display configuration bloat and unused section timing functions
 - Simplified module docstring in main.py — removed ASCII art box formatting
+- Added comprehensive WORKFLOW.md documenting the complete data processing pipeline, architecture, and design decisions
 - Requires Python 3.12 or higher
 - Now installable via pip install . or uv sync
 - Rewrote CLAUDE.md with installation, CLI usage examples, and a summary of all four improvement phases

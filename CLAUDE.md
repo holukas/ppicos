@@ -13,6 +13,8 @@ No raw data values are modified—only formatting transformations are applied:
 - File compression to ZIP (optional)
 - Extraction of daily data from multi-day raw files
 
+**See [WORKFLOW.md](WORKFLOW.md) for detailed technical documentation of the data processing pipeline, architecture, and design decisions.**
+
 ## Git Workflow
 
 **Never commit, stage, or add files to git.** Write commit messages only; the user handles all git operations.
