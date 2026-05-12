@@ -12,6 +12,7 @@
 - Added command-line interface: ppicos --help, ppicos --list, ppicos --type 10_meteo
 - Can now selectively run processors: ppicos --type 12_meteo_forest_floor --instance 2
 - Fixed list comprehensions, removed deprecated pandas patterns, deleted dead code
+- Refactored section logging with context manager — reduced boilerplate, guaranteed cleanup even on errors
 - Requires Python 3.12 or higher
 - Now installable via pip install . or uv sync
 - Rewrote CLAUDE.md with installation, CLI usage examples, and a summary of all four improvement phases
