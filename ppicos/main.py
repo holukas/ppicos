@@ -142,7 +142,8 @@ class IcosFormat:
             checkok = self._check_if_already_processed(filename=filename_for_filetype_logfile,
                                                        grp_date=grp_date,
                                                        section_name=section_name)
-            if not checkok: continue
+            if not checkok:
+                continue
 
             self.logger.log_info(f"{section_name}    --> Creating daily file {filename_for_filetype_logfile} "
                                  f"for date {grp_date}")

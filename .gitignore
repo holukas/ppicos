@@ -4,6 +4,7 @@
 /_archive
 /_raw_photoshop
 /_example_input_output
+/.claude
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
