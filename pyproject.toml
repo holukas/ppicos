@@ -31,8 +31,8 @@ ppicos = "ppicos.cli:main"
 [tool.hatch.build.targets.wheel]
 packages = ["ppicos"]
 
-[tool.uv]
-dev-dependencies = []
+[dependency-groups]
+dev = []
 
 [build-system]
 requires = ["hatchling"]
