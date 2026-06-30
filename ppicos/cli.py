@@ -46,8 +46,16 @@ import argparse
 import datetime
 import sys
 
-from ppicos import filesettings
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from ppicos import filesettings, richconsole
 from ppicos.main import IcosFormat
+
+# Stderr console for errors/warnings so they stay on the error stream and
+# remain clearly visible. Shares the same theme as the main console.
+error_console = Console(stderr=True, theme=richconsole.THEME, highlight=False)
 
 
 AVAILABLE_TYPES = {
@@ -121,13 +129,12 @@ def main():
         else:
             return run_all_processors(args.max_age_days)
     except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+        error_console.print(f"Error: {e}", style="error")
         return 1
 
 
 def print_available_types():
     """Print list of available file types"""
-    print("\nAvailable file types:\n")
     descriptions = {
         '10_meteo': 'Basic meteorology',
         '10_meteo_localtest': 'Basic meteorology (LOCAL TESTING ONLY)',
@@ -142,17 +149,22 @@ def print_available_types():
         '17_meteo_profile': 'Meteorology profile',
         '30_profile_ghg': 'GHG profile',
     }
+    table = Table(title="Available file types", title_style="heading",
+                  header_style="section", border_style="muted")
+    table.add_column("File type", style="accent", no_wrap=True)
+    table.add_column("Description", style="info")
     for name in sorted(AVAILABLE_TYPES.keys()):
-        desc = descriptions.get(name, '')
-        print(f"  {name:30s}  {desc}")
-    print()
+        table.add_row(name, descriptions.get(name, ''))
+    richconsole.console.print()
+    richconsole.console.print(table)
+    richconsole.console.print()
 
 
 def run_specific_processor(filetype, instance, table, max_age_days):
     """Run a specific processor"""
     if filetype not in AVAILABLE_TYPES:
-        print(f"Error: Unknown file type '{filetype}'", file=sys.stderr)
-        print(f"Use 'ppicos --list' to see available types", file=sys.stderr)
+        error_console.print(f"Error: Unknown file type '{filetype}'", style="error")
+        error_console.print("Use 'ppicos --list' to see available types", style="muted")
         return 1
 
     func, kwargs = AVAILABLE_TYPES[filetype]
@@ -160,34 +172,40 @@ def run_specific_processor(filetype, instance, table, max_age_days):
     # Handle multi-instance types
     if filetype == '12_meteo_forest_floor':
         if instance is None:
-            print("Error: --instance required for 12_meteo_forest_floor", file=sys.stderr)
-            print("Valid instances: 1-5", file=sys.stderr)
+            error_console.print("Error: --instance required for 12_meteo_forest_floor", style="error")
+            error_console.print("Valid instances: 1-5", style="muted")
             return 1
         if not (1 <= instance <= 5):
-            print(f"Error: Invalid instance {instance}. Valid range: 1-5", file=sys.stderr)
+            error_console.print(f"Error: Invalid instance {instance}. Valid range: 1-5", style="error")
             return 1
         kwargs['forest_floor'] = instance
         kwargs['table'] = table
         display_name = f"{filetype}_instance_{instance}"
     else:
         if instance is not None:
-            print(f"Warning: --instance ignored for {filetype}", file=sys.stderr)
+            error_console.print(f"Warning: --instance ignored for {filetype}", style="warning")
         display_name = filetype
 
     try:
-        print(f"\n{'=' * 60}")
-        print(f"Running: {display_name}")
-        print(f"{'=' * 60}\n")
+        richconsole.console.print()
+        richconsole.console.print(
+            Panel(f"Running: {display_name}", style="heading", border_style="section")
+        )
+        richconsole.console.print()
 
         settings = func(**kwargs) if kwargs else func()
         icosformat = IcosFormat(filesettings=settings, max_age_days=max_age_days)
         icosformat.run()
 
-        print(f"\n✓ Successfully completed: {display_name}\n")
+        richconsole.console.print()
+        richconsole.console.print(f"✓ Successfully completed: {display_name}", style="success")
+        richconsole.console.print()
         return 0
     except Exception as e:
-        print(f"\n✗ Failed: {display_name}", file=sys.stderr)
-        print(f"Error: {e}\n", file=sys.stderr)
+        error_console.print()
+        error_console.print(f"✗ Failed: {display_name}", style="error")
+        error_console.print(f"Error: {e}", style="error")
+        error_console.print()
         return 1
 
 
@@ -214,31 +232,44 @@ def run_all_processors(max_age_days):
 
     for display_name, func, kwargs in processors:
         try:
-            print(f"\nProcessing: {display_name}...")
+            richconsole.rule(f"Processing: {display_name}...")
             settings = func(**kwargs) if kwargs else func()
             icosformat = IcosFormat(filesettings=settings, max_age_days=max_age_days)
             icosformat.run()
             run_successful.append(display_name)
         except Exception as e:
-            print(f"Failed: {display_name} - {e}")
+            richconsole.log_line(f"Failed: {display_name} - {e}", style="error")
             run_not_successful.append(display_name)
 
     # Summary
     total_seconds = datetime.datetime.now() - script_start
-    print(f"\n\n{'=' * 60}")
-    print(f"Runtime for all file types: {total_seconds}")
-    print(f"{'=' * 60}")
+    richconsole.console.print()
+    richconsole.console.print(
+        Panel(f"Runtime for all file types: {total_seconds}",
+              style="heading", border_style="section")
+    )
 
-    print(f"\n✓ Successful runs ({len(run_successful)}):")
+    success_table = Table(title=f"✓ Successful runs ({len(run_successful)})",
+                          title_style="success", border_style="muted",
+                          show_header=False)
+    success_table.add_column("Run", style="success")
     for r in run_successful:
-        print(f"    {r}")
+        success_table.add_row(r)
+    richconsole.console.print()
+    richconsole.console.print(success_table)
 
     if run_not_successful:
-        print(f"\n✗ Failed runs ({len(run_not_successful)}):")
+        failed_table = Table(title=f"✗ Failed runs ({len(run_not_successful)})",
+                             title_style="error", border_style="muted",
+                             show_header=False)
+        failed_table.add_column("Run", style="error")
         for r in run_not_successful:
-            print(f"    {r}")
+            failed_table.add_row(r)
+        richconsole.console.print()
+        richconsole.console.print(failed_table)
     else:
-        print(f"\nAll processors completed successfully!")
+        richconsole.console.print()
+        richconsole.console.print("All processors completed successfully!", style="success")
 
     return 0 if not run_not_successful else 1
 

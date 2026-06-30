@@ -3,6 +3,8 @@ import logging
 import os
 import time
 
+from ppicos import richconsole
+
 
 class Logger(object):
     """Logger that outputs to both console and file with automatic section tracking"""
@@ -25,10 +27,14 @@ class Logger(object):
         # Track current section for context-aware logging
         self.current_section = ''
 
-    def log_info(self, record):
-        """Output record to console and log file"""
+    def _log_file(self, record):
+        """Write a record to the plain-text log file only (no console output)"""
         self.logger.info(record)
-        print(record)
+
+    def log_info(self, record):
+        """Output record to console (Rich) and log file"""
+        self.logger.info(record)
+        richconsole.log_line(record)
 
     @contextlib.contextmanager
     def section(self, name):
@@ -37,10 +43,39 @@ class Logger(object):
         previous_section = self.current_section
         self.current_section = name
 
-        self.log_info(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
+        # File keeps the verbose banner; console gets a modern section rule.
+        self._log_file(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
+        richconsole.section_start(name)
         try:
             yield
         finally:
             elapsed = time.time() - tic
-            self.log_info(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
+            # File keeps the original wording; console gets a subtle summary.
+            self._log_file(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
+            richconsole.section_end(name, elapsed)
             self.current_section = previous_section
+
+    def startup(self, title, facts: dict, settings: dict, source_dir):
+        """Log the run header.
+
+        File: the original verbose banner + key/value header + full settings
+        dump (unchanged). Console: a modern header panel and a compact settings
+        card (all settings shown, paths shortened).
+        """
+        # --- log file: identical content to the original _setup_logger ---
+        self._log_file('\n\n\n\n\n{s}\n\n     {f}\n\n{s}'.format(s='=' * 120, f=title))
+        self._log_file('FILETYPE:      {}'.format(title))
+        self._log_file('FILETYPE ID:   {}'.format(facts.get('ID')))
+        self._log_file('START TIME:    {}'.format(facts.get('Start')))
+        self._log_file('RUN ID:        {}'.format(facts.get('Run ID')))
+        self._log_file('LOG FILE PATH: {}'.format(facts.get('Log file')))
+        self._log_file("\n" + "-" * 60)
+        self._log_file("FOUND SETTINGS FOR THIS RUN")
+        for key, value in settings.items():
+            self._log_file("{}: {}".format(key, value))
+        self._log_file("-" * 60)
+        self._log_file('\nsource dir:  {}'.format(source_dir))
+
+        # --- console: compact, modern rendering ---
+        richconsole.startup_panel(title, facts)
+        richconsole.settings_table(settings)

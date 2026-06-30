@@ -545,16 +545,16 @@ class IcosFormat:
         logger = Logger(run_id=self.run_id,
                         logdir=logpath,
                         filetype=self.filesettings['FILE_FILEGROUP'])  # initialize logging
-        logger.log_info('\n\n\n\n\n{s}\n\n     {f}\n\n{s}'.format(s='=' * 120, f=self.filesettings['FILE_FILEGROUP']))
-        logger.log_info('FILETYPE:      {}'.format(self.filesettings['FILE_FILEGROUP']))
-        logger.log_info('FILETYPE ID:   {}'.format(self.filesettings['FILENAME_ID']))
-        logger.log_info('START TIME:    {}'.format(self.run_start_datestr))
-        logger.log_info('RUN ID:        {}'.format(self.run_id))
-        logger.log_info('LOG FILE PATH: {}'.format(logpath))
-        logger.log_info("\n" + "-" * 60)
-        logger.log_info("FOUND SETTINGS FOR THIS RUN")
-        for key, value in self.filesettings.items():
-            logger.log_info("{}: {}".format(key, value))
-        logger.log_info("-" * 60)
-        logger.log_info('\nsource dir:  {}'.format(self.filesettings['DIR_SOURCE_FILES']))
+        facts = {
+            'ID': self.filesettings['FILENAME_ID'],
+            'Start': self.run_start_datestr,
+            'Run ID': self.run_id,
+            'Source': self.filesettings['DIR_SOURCE_FILES'],
+            'Output': self.filesettings['DIR_OUT_ICOS'],
+            'Log file': logpath,
+        }
+        logger.startup(title=self.filesettings['FILE_FILEGROUP'],
+                       facts=facts,
+                       settings=self.filesettings,
+                       source_dir=self.filesettings['DIR_SOURCE_FILES'])
         return logger

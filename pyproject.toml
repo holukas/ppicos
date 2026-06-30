@@ -9,6 +9,7 @@ requires-python = ">=3.12"
 dependencies = [
     "pandas>=3.0.0",
     "Jinja2>=3.1.2",
+    "rich>=15.0.0",
 ]
 keywords = ["ICOS", "flux tower", "data processing", "CH-DAV"]
 classifiers = [
