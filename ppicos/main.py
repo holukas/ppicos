@@ -124,8 +124,8 @@ class IcosFormat:
                                      f"for date {grp_date}")
 
                 # Basic data info
-                firstdate = grp_df[self.icos_timestamp_col][0]
-                lastdate = grp_df[self.icos_timestamp_col][-1]
+                firstdate = grp_df[self.icos_timestamp_col].iloc[0]
+                lastdate = grp_df[self.icos_timestamp_col].iloc[-1]
                 self.logger.log_info(f"{self.logger.current_section}        "
                                      f"(i) Data from {firstdate} to {lastdate} "
                                      f"({len(grp_df)} values, {len(grp_df.columns)} columns)")

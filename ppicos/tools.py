@@ -30,7 +30,7 @@ def set_search_folders(source_dir, search_firstdate, search_lastdate):
     search_firstdate_str = search_firstdate.strftime('%Y-%m')
     search_lastdate_str = search_lastdate.strftime('%Y-%m')
     dates_str = [search_firstdate_str, search_lastdate_str]
-    _index = pd.date_range(*(pd.to_datetime(dates_str) + pd.offsets.MonthEnd()), freq='M')
+    _index = pd.date_range(*(pd.to_datetime(dates_str) + pd.offsets.MonthEnd()), freq='ME')
 
     # Generate paths to search dirs
     searchdirs = []

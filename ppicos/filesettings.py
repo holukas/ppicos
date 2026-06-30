@@ -70,7 +70,7 @@ def f_10_meteo_heatflag_sonic():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': False,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -117,7 +117,7 @@ def f_10_meteo_press():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1],
@@ -159,7 +159,7 @@ def f_11_meteo_hut_prec():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': True,  # Some data of current day is stored in previous day's data
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': ['_Tot'],
         'DATA_HEADER_ROWS': [1, 2],
@@ -238,7 +238,7 @@ def f_12_meteo_forest_floor(forest_floor, table):
     # necessary due to updates in F01 for FF1-5 --> they have now F03 but could have
     # file numbers different from each other in the future.
     if table == 1:
-        file_info['DATA_FREQUENCY'] = '1T'
+        file_info['DATA_FREQUENCY'] = '1min'
         if forest_floor == 1:
             file_info['OUTFILE_ICOS_FILENUMBER_FN'] = '04'
         elif forest_floor == 2:
@@ -286,7 +286,7 @@ def f_13_meteo_meteoswiss():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10T',
+        'DATA_FREQUENCY': '10min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [0],
@@ -328,7 +328,7 @@ def f_13_meteo_backup_eth():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -382,7 +382,7 @@ def f_13_meteo_nabel():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '60S',
+        'DATA_FREQUENCY': '60s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1],
@@ -434,7 +434,7 @@ def f_15_meteo_snowheight():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -518,7 +518,7 @@ def f_17_meteo_profile():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         # 'DATA_HEADER_ROWS': [0],
@@ -570,7 +570,7 @@ def f_17_meteo_profile():
 def f_30_profile_ghg():
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1S',
+        'DATA_FREQUENCY': '1s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [0],
