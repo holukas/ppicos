@@ -25,12 +25,53 @@ Info about the file structure
 from pathlib import Path
 
 
+def f_10_meteo_localtest():
+    # --- TESTING ONLY ---
+    # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
+
+    file_info = {
+        'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
+        'DATA_FREQUENCY': '10s',
+        'DATA_HEADER_OUTPUT_TO_FILE': True,
+        'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
+        'DATA_HEADER_ROWS': [1, 2],
+        'DATA_ICOS_TIMESTAMP_FORMAT': '%Y%m%d%H%M%S',
+        'DATA_KEEP_ONLY_RENAMED_COLUMNS': False,
+        'DATA_RENAME_COLUMNS': False,
+        'DATA_SEPARATOR': ',',
+        'DATA_SKIP_ROWS': [3],
+        'DATA_TIMESTAMP_COL': 0,
+        'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
+        'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
+        # 'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo'),
+        'DIR_OUT_LOGFILE': Path('logs'),
+        # 'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/10_meteo'),
+        'FILE_FILEGROUP': '10_meteo',
+        'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
+        'FILENAME_ID': 'CH-DAV_iDL_T1_35_1_TBL1_*.dat',
+        'FILENAME_LENGTH': 43,
+        'FILENAME_POSITION_DAY': [32, 34],
+        'FILENAME_POSITION_HOUR': [35, 37],
+        'FILENAME_POSITION_MINUTE': [37, 39],
+        'FILENAME_POSITION_MONTH': [29, 31],
+        'FILENAME_POSITION_YEAR': [24, 28],
+        'OUTFILE_COMPRESSION': True,
+        'OUTFILE_DELETE_UNCOMPRESSED': True,
+        'OUTFILE_ICOS_FILENUMBER_FN': '03',
+        'OUTFILE_ICOS_LOGGERNUMBER_LN': '02',
+        'DIR_SOURCE_FILES': Path(r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\input\10_meteo'),  # testing
+        'DIR_OUT_ICOS': Path(r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\output\01_ICOS_TRANSFER\10_meteo')  # testing
+    }
+
+    return file_info
+
+
 def f_10_meteo():
     # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],

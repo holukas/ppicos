@@ -52,6 +52,7 @@ from ppicos.main import IcosFormat
 
 AVAILABLE_TYPES = {
     '10_meteo': (filesettings.f_10_meteo, {}),
+    '10_meteo_localtest': (filesettings.f_10_meteo_localtest, {}),
     '10_meteo_press': (filesettings.f_10_meteo_press, {}),
     '10_meteo_heatflag_sonic': (filesettings.f_10_meteo_heatflag_sonic, {}),
     '11_meteo_hut_prec': (filesettings.f_11_meteo_hut_prec, {}),
@@ -129,6 +130,7 @@ def print_available_types():
     print("\nAvailable file types:\n")
     descriptions = {
         '10_meteo': 'Basic meteorology',
+        '10_meteo_localtest': 'Basic meteorology (LOCAL TESTING ONLY)',
         '10_meteo_press': 'Pressure sensor',
         '10_meteo_heatflag_sonic': 'Heat flag & sonic anemometer',
         '11_meteo_hut_prec': 'Hut precipitation',
