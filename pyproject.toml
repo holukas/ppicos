@@ -1,19 +1,40 @@
-[tool.poetry]
+[project]
 name = "ppicos"
-version = "5.1.1"
+version = "6.0.0"
 description = "Convert data files to ICOS-conform file formats."
-authors = ["Lukas Hörtnagl <holukas@ethz.ch>"]
+readme = "README.md"
+license = {text = "MIT"}
+authors = [{name = "Lukas Hörtnagl", email = "holukas@ethz.ch"}]
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=3.0.0",
+    "Jinja2>=3.1.2",
+    "rich>=15.0.0",
+]
+keywords = ["ICOS", "flux tower", "data processing", "CH-DAV"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-pandas = "^1.5.3"
-Jinja2 = "^3.1.2"
+[project.urls]
+Repository = "https://github.com/holukas/ppicos"
 
-[tool.poetry.dev-dependencies]
+[project.scripts]
+ppicos = "ppicos.cli:main"
 
-[tool.poetry.scripts]
-ppicos = "ppicos:start_ALL"
+[tool.hatch.build.targets.wheel]
+packages = ["ppicos"]
+
+[dependency-groups]
+dev = []
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

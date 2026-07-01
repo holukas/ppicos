@@ -1,5 +1,66 @@
 # Changelog
 
+## v6.0.0 | 1 Jul 2026
+
+### Modernization & Quality Release
+
+**Requirements**:
+- Requires pandas 3.0+ (upgraded from 1.5.3)
+- Requires rich 15.0+ (console output)
+- Python 3.12 or higher
+
+**Breaking**:
+- Source and output paths are no longer hardcoded. Copy `paths.example.toml` to `paths.toml` and
+  set the `rawdata` and `transfer` roots before running. Existing setups must add this file.
+
+### Configuration
+- Moved the source and output roots out of the code into `paths.toml` (gitignored), read through a
+  new `config.py` module. Each file type appends its own subfolder to the `rawdata` or `transfer`
+  root. Added `paths.example.toml` as a template, and a `PPICOS_PATHS_FILE` override.
+
+### CLI and console output
+- Added parallel run-all: `ppicos` now processes file types concurrently, one worker per file type
+  (`--workers`, default 3), with a per-run log file and a compact status line per completion.
+- Added `--dry-run` to preview every step without creating or modifying any files.
+- Added `--list-numbers` to list the ICOS logger (LN) and file (FN) numbers in use, flag any
+  duplicate LN+FN combinations, and show which `filesettings.py` function defines each.
+- Reworked console output with rich: an intro header, a run-settings panel (mode, max age, search
+  window, workers), and a one-line overview summary at the end of a run-all.
+
+### Fixes
+- Fixed a pandas PerformanceWarning when removing partial days by filtering on the index instead of
+  adding and dropping a helper column.
+
+### Documentation
+- Rewrote the README: task-based structure, an "install on another machine with uv" guide, the
+  `paths.toml` configuration section, and prominent links to WORKFLOW.md and FLOWCHART.md.
+
+- Dropped support for deprecated pandas date_parser parameter — now works with pandas 2.0+
+- Fixed ZipFile resource management: now uses context manager for proper cleanup
+- Restructured as a proper Python package with __init__.py — can be installed and imported directly
+- Converted all relative imports to absolute imports (from ppicos import module)
+- Renamed html.py to html_generator.py to avoid shadowing Python's built-in html module
+- Added command-line interface: ppicos --help, ppicos --list, ppicos --type 10_meteo
+- Can now selectively run processors: ppicos --type 12_meteo_forest_floor --instance 2
+- Fixed list comprehensions, removed deprecated pandas patterns, deleted dead code
+- Refactored section logging with context manager — reduced boilerplate, guaranteed cleanup even on errors
+- Simplified variable names in main.py for better readability (csv_path, zip_path, output_filename, etc.)
+- Removed dead code: hash_value_for_file(), check_if_path_exists(), print_settings_dict() wrapper
+- Removed pandas display configuration bloat and unused section timing functions
+- Simplified module docstring in main.py — removed ASCII art box formatting
+- Consolidated file validation methods into single _validate_file() for cleaner, more maintainable code
+- Consolidated file export methods into single _save_daily_file() handling CSV save, optional ZIP compression, and optional deletion
+- Refactored logging: Logger class now tracks current_section internally, eliminating section_name parameter from 15+ methods
+- Consolidated file validation into single `_validate_file()` method (3 methods → 1)
+- Consolidated file export into single `_save_daily_file()` method (3 methods → 1)
+- Logger.section() converted from standalone function to context manager method
+- Removed dead code and commented-out code blocks for cleaner codebase
+- Reduced main.py from 616 to 560 lines (56 lines saved)
+- Added comprehensive WORKFLOW.md documenting the complete data processing pipeline, architecture, and design decisions
+- Requires Python 3.12 or higher
+- Now installable via pip install . or uv sync
+- Rewrote CLAUDE.md with installation, CLI usage examples, and a summary of all four improvement phases
+
 ## v5.1.1 | 25 Jul 2025
 
 - Fixed bug in input and output directories

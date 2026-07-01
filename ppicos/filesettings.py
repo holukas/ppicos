@@ -20,17 +20,23 @@ Info about the file structure
 
     Abbreviations: d ... data, f ... file, fn ... filename
 
-
+    Source and output roots (DIR_SOURCE_FILES / DIR_OUT_ICOS) are not hardcoded here. They are
+    read from paths.toml (gitignored) via the config module; each file type appends its own
+    subfolder to the appropriate root. See paths.example.toml.
 """
 from pathlib import Path
 
+from ppicos import config
 
-def f_10_meteo():
+
+def localtest_f_10_meteo():
+    # --- TESTING ONLY ---
     # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
+    input_root, output_root = config.localtest_roots()
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -42,9 +48,48 @@ def f_10_meteo():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo'),
+        'DIR_OUT_ICOS': output_root / '10_meteo',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/10_meteo'),
+        'DIR_SOURCE_FILES': input_root / '10_meteo',
+        'FILE_FILEGROUP': '10_meteo',
+        'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
+        'FILENAME_ID': 'CH-DAV_iDL_T1_35_1_TBL1_*.dat',
+        'FILENAME_LENGTH': 43,
+        'FILENAME_POSITION_DAY': [32, 34],
+        'FILENAME_POSITION_HOUR': [35, 37],
+        'FILENAME_POSITION_MINUTE': [37, 39],
+        'FILENAME_POSITION_MONTH': [29, 31],
+        'FILENAME_POSITION_YEAR': [24, 28],
+        'OUTFILE_COMPRESSION': True,
+        'OUTFILE_DELETE_UNCOMPRESSED': True,
+        'OUTFILE_ICOS_FILENUMBER_FN': '03',
+        'OUTFILE_ICOS_LOGGERNUMBER_LN': '02',
+    }
+
+    return file_info
+
+
+def f_10_meteo():
+    # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
+    rawdata_root, transfer_root = config.roots()
+
+    file_info = {
+        'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
+        'DATA_FREQUENCY': '10s',
+        'DATA_HEADER_OUTPUT_TO_FILE': True,
+        'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
+        'DATA_HEADER_ROWS': [1, 2],
+        'DATA_ICOS_TIMESTAMP_FORMAT': '%Y%m%d%H%M%S',
+        'DATA_KEEP_ONLY_RENAMED_COLUMNS': False,
+        'DATA_RENAME_COLUMNS': False,
+        'DATA_SEPARATOR': ',',
+        'DATA_SKIP_ROWS': [3],
+        'DATA_TIMESTAMP_COL': 0,
+        'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
+        'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
+        'DIR_OUT_ICOS': transfer_root / '10_meteo',
+        'DIR_OUT_LOGFILE': Path('logs'),
+        'DIR_SOURCE_FILES': rawdata_root / '10_meteo',
         'FILE_FILEGROUP': '10_meteo',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_iDL_T1_35_1_TBL1_*.dat',
@@ -58,8 +103,6 @@ def f_10_meteo():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '03',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '02'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/10_meteo'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/10_meteo')  # testing
     }
 
     return file_info
@@ -67,10 +110,11 @@ def f_10_meteo():
 
 def f_10_meteo_heatflag_sonic():
     # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
+    rawdata_root, transfer_root = config.roots()
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': False,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -82,10 +126,9 @@ def f_10_meteo_heatflag_sonic():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': False,
-        'DIR_OUT_ICOS': Path(
-            '//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo_heatflag_sonic'),
+        'DIR_OUT_ICOS': transfer_root / '10_meteo_heatflag_sonic',
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/10_meteo'),
+        'DIR_SOURCE_FILES': rawdata_root / '10_meteo',
         'FILE_FILEGROUP': '10_meteo_heatflag_sonic',
         'FILENAME_FOR_ICOS': 'CH-Dav_SAHEAT_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_iDL_T1_35_1_TBL2_*.dat',
@@ -99,8 +142,6 @@ def f_10_meteo_heatflag_sonic():
         'OUTFILE_DELETE_UNCOMPRESSED': False,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '02'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/10_meteo'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/10_meteo_heatflag_sonic')  # testing
     }
 
     return file_info
@@ -108,6 +149,7 @@ def f_10_meteo_heatflag_sonic():
 
 def f_10_meteo_press():
     # example filename: CH-DAV_pressure_20250401.dat
+    rawdata_root, transfer_root = config.roots()
 
     # in case column names need to be changed, new names are defined here
     renaming_map = {
@@ -117,7 +159,7 @@ def f_10_meteo_press():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1],
@@ -129,9 +171,9 @@ def f_10_meteo_press():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': False,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/10_meteo'),
+        'DIR_OUT_ICOS': transfer_root / '10_meteo',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/10_meteo'),
+        'DIR_SOURCE_FILES': rawdata_root / '10_meteo',
         'FILE_FILEGROUP': '10_meteo_press',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_pressure_*.dat',
@@ -145,8 +187,6 @@ def f_10_meteo_press():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '10',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/10_meteo'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/10_meteo')  # testing
     }
 
     return file_info
@@ -156,10 +196,11 @@ def f_11_meteo_hut_prec():
     # File contains precipitation
     # example filename: CH-DAV_iDL_H1_0_1_TBL3_2023_01_25_0004.dat
     # Added in v4.0.14
+    rawdata_root, transfer_root = config.roots()
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': True,  # Some data of current day is stored in previous day's data
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': ['_Tot'],
         'DATA_HEADER_ROWS': [1, 2],
@@ -171,9 +212,9 @@ def f_11_meteo_hut_prec():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/11_meteo_hut'),
+        'DIR_OUT_ICOS': transfer_root / '11_meteo_hut',
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/11_meteo_hut'),
+        'DIR_SOURCE_FILES': rawdata_root / '11_meteo_hut',
         'FILE_FILEGROUP': '11_meteo_hut_prec',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_iDL_H1_0_1_TBL3_*.dat',
@@ -187,8 +228,6 @@ def f_11_meteo_hut_prec():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '03',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '03'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/11_meteo_hut'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/11_meteo_hut')  # testing
     }
 
     return file_info
@@ -198,6 +237,7 @@ def f_12_meteo_forest_floor(forest_floor, table):
     # For forest floor data files, some settings are created dynamically b/c we have different files,
     # i.e. forest floors 1-5 and each have tables 1 and 2 (total 10 files)
     # example filename: CH-DAV_iDL_FF1_0_1_TBL1_2018_08_19_0000.dat
+    rawdata_root, transfer_root = config.roots()
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
@@ -212,9 +252,9 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor'),
+        'DIR_OUT_ICOS': transfer_root / '12_meteo_forestfloor',
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/12_meteo_forestfloor'),
+        'DIR_SOURCE_FILES': rawdata_root / '12_meteo_forestfloor',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_LENGTH': 43,
         'FILENAME_POSITION_DAY': [32, 34],
@@ -223,9 +263,7 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'FILENAME_POSITION_MONTH': [29, 31],
         'FILENAME_POSITION_YEAR': [24, 28],
         'OUTFILE_COMPRESSION': True,
-        'OUTFILE_DELETE_UNCOMPRESSED': True
-        # 'DIR_SOURCE_FILES': Path(r'F:\TMP\del'),  # todo testing
-        # 'DIR_OUT_ICOS': Path(r'F:\TMP\del')  # todo testing
+        'OUTFILE_DELETE_UNCOMPRESSED': True,
     }
 
     file_info['FILENAME_ID'] = 'CH-DAV_iDL_FF{ff}_0_1_TBL{t}_*.dat'.format(ff=forest_floor, t=table)
@@ -238,7 +276,7 @@ def f_12_meteo_forest_floor(forest_floor, table):
     # necessary due to updates in F01 for FF1-5 --> they have now F03 but could have
     # file numbers different from each other in the future.
     if table == 1:
-        file_info['DATA_FREQUENCY'] = '1T'
+        file_info['DATA_FREQUENCY'] = '1min'
         if forest_floor == 1:
             file_info['OUTFILE_ICOS_FILENUMBER_FN'] = '04'
         elif forest_floor == 2:
@@ -275,6 +313,7 @@ def f_13_meteo_meteoswiss():
     """
 
     # example filename: VQAA77.201809030525
+    rawdata_root, transfer_root = config.roots()
 
     # in case column names need to be changed, new names are defined here
     renaming_map = {
@@ -286,7 +325,7 @@ def f_13_meteo_meteoswiss():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10T',
+        'DATA_FREQUENCY': '10min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [0],
@@ -298,10 +337,9 @@ def f_13_meteo_meteoswiss():
         'DATA_TIMESTAMP_COL': 1,
         'DATA_TIMESTAMP_FORMAT': '%Y%m%d%H%M',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path(
-            '//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_meteoswiss'),
+        'DIR_OUT_ICOS': transfer_root / '13_meteo_meteoswiss',
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/13_meteo_meteoswiss'),
+        'DIR_SOURCE_FILES': rawdata_root / '13_meteo_meteoswiss',
         'FILE_FILEGROUP': '13_meteo_meteoswiss',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'VQAA77.*',
@@ -315,8 +353,6 @@ def f_13_meteo_meteoswiss():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '20'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/13_meteo_meteoswiss'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/13_meteo_meteoswiss')  # testing
     }
 
     return file_info
@@ -325,10 +361,11 @@ def f_13_meteo_meteoswiss():
 def f_13_meteo_backup_eth():
     # This file is now only logging data for SW_IN
     # example filename: CH-DAV_iDL_T1_35_2_TBL1_2018_09_29_0100.dat
+    rawdata_root, transfer_root = config.roots()
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -340,10 +377,9 @@ def f_13_meteo_backup_eth():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path(
-            '//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_backup_eth'),
+        'DIR_OUT_ICOS': transfer_root / '13_meteo_backup_eth',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/13_meteo_backup_eth'),
+        'DIR_SOURCE_FILES': rawdata_root / '13_meteo_backup_eth',
         'FILE_FILEGROUP': '13_meteo_backup_eth',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_iDL_T1_35_2_TBL1_*.dat',
@@ -357,8 +393,6 @@ def f_13_meteo_backup_eth():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '04',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '21'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/13_meteo_backup_eth'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/13_meteo_backup_eth')  # testing
     }
 
     return file_info
@@ -369,6 +403,7 @@ def f_13_meteo_nabel():
 
     # problem: file rows have trailing semicolon at the end
     # http://wesmckinney.com/blog/update-on-upcoming-pandas-v0-10-new-file-parser-other-performance-wins/
+    rawdata_root, transfer_root = config.roots()
 
     # in case column names need to be changed, new names are defined here
     renaming_map = {
@@ -382,7 +417,7 @@ def f_13_meteo_nabel():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '60S',
+        'DATA_FREQUENCY': '60s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1],
@@ -394,9 +429,9 @@ def f_13_meteo_nabel():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%d.%m.%Y %H:%M',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/13_meteo_nabel'),
+        'DIR_OUT_ICOS': transfer_root / '13_meteo_nabel',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/13_meteo_nabel'),
+        'DIR_SOURCE_FILES': rawdata_root / '13_meteo_nabel',
         'FILE_FILEGROUP': '13_meteo_nabel',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'DAV_Meteo_NABEL_*.CSV',
@@ -424,6 +459,7 @@ def f_15_meteo_snowheight():
     #   renamed to ICOS variable names with this script
     # - this file was originally recorded with snow depth in m (until 16 Nov 2023)
     # - since 17 Nov 2023, the snow depth is in cm as required by ICOS
+    rawdata_root, transfer_root = config.roots()
 
     renaming_map = {
         'D_SNOW_M1_1.8_1_Smp': 'D_SNOW_1_1_1',
@@ -434,7 +470,7 @@ def f_15_meteo_snowheight():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1T',
+        'DATA_FREQUENCY': '1min',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [1, 2],
@@ -446,10 +482,9 @@ def f_15_meteo_snowheight():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path(
-            '//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/15_meteo_snowheight'),
+        'DIR_OUT_ICOS': transfer_root / '15_meteo_snowheight',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/15_meteo_snowheight'),
+        'DIR_SOURCE_FILES': rawdata_root / '15_meteo_snowheight',
         'FILE_FILEGROUP': '15_meteo_snowheight',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_snowheight_*.dat',
@@ -463,9 +498,6 @@ def f_15_meteo_snowheight():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '08',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01',
-        # # testing
-        # 'DIR_SOURCE_FILES': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/input'),
-        # 'DIR_OUT_ICOS': Path(r'L:/Sync/luhk_work/20 - CODING/24 - ICOS/ppicos/_example_input_output/output')  # testing
     }
 
     # previous format ending 2021-12-01:
@@ -487,6 +519,7 @@ def f_15_meteo_snowheight():
 def f_17_meteo_profile():
     # example filename: CH-DAV_meteo-profile_20250401.dat (current)
     # example filename: CH-Dav_BM_20180819_L01_F02.dat (deprecated)
+    rawdata_root, transfer_root = config.roots()
 
     # in case column names need to be changed, new names are defined here
     renaming_map = {
@@ -518,7 +551,7 @@ def f_17_meteo_profile():
 
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '10S',
+        'DATA_FREQUENCY': '10s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         # 'DATA_HEADER_ROWS': [0],
@@ -534,12 +567,9 @@ def f_17_meteo_profile():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',  # 2025-04-06 00:00:10
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path(
-            '//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
-        # NEW Apr 2025
+        'DIR_OUT_ICOS': transfer_root / '17_meteo_profile',  # NEW Apr 2025
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/17_meteo_profile'),
-        # NEW Apr 2025
+        'DIR_SOURCE_FILES': rawdata_root / '17_meteo_profile',  # NEW Apr 2025
         'FILE_FILEGROUP': '17_meteo_profile',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         # 'FILENAME_ID': 'CH-Dav_BM_*_L01_F02.dat',
@@ -560,17 +590,17 @@ def f_17_meteo_profile():
         # 'OUTFILE_ICOS_FILENUMBER_FN': '02',
         'OUTFILE_ICOS_FILENUMBER_FN': '09',  # NEW Apr 2025
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '01'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/17_meteo_profile'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/17_meteo_profile')  # testing
     }
 
     return file_info
 
 
 def f_30_profile_ghg():
+    rawdata_root, transfer_root = config.roots()
+
     file_info = {
         'DATA_COMPLEMENT_WITH_PREVIOUS_DATE': False,
-        'DATA_FREQUENCY': '1S',
+        'DATA_FREQUENCY': '1s',
         'DATA_HEADER_OUTPUT_TO_FILE': True,
         'DATA_HEADER_REMOVE_SUFFIX_FROM_VARIABLE_NAMES': [],
         'DATA_HEADER_ROWS': [0],
@@ -582,9 +612,9 @@ def f_30_profile_ghg():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y%m%d%H%M%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/30_profile_ghg'),
+        'DIR_OUT_ICOS': transfer_root / '30_profile_ghg',
         'DIR_OUT_LOGFILE': Path('logs'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/30_profile_ghg'),
+        'DIR_SOURCE_FILES': rawdata_root / '30_profile_ghg',
         'FILE_FILEGROUP': '30_profile_ghg',
         'FILENAME_FOR_ICOS': 'CH-Dav_ST_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-Dav_ST_*_L10_F01.dat',
@@ -598,8 +628,6 @@ def f_30_profile_ghg():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '02',  # renamed to correct ICOS file number
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '10'
-        # 'DIR_SOURCE_FILES': Path(r'F:/Downloads/_temp/testing_ppicos/input/30_profile_ghg'),  # testing
-        # 'DIR_OUT_ICOS': Path(r'F:/Downloads/_temp/testing_ppicos/output/30_profile_ghg')  # testing
     }
 
     return file_info

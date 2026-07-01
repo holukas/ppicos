@@ -1,5 +1,4 @@
 import datetime as dt
-import hashlib
 import ntpath
 import os
 from pathlib import Path
@@ -31,7 +30,7 @@ def set_search_folders(source_dir, search_firstdate, search_lastdate):
     search_firstdate_str = search_firstdate.strftime('%Y-%m')
     search_lastdate_str = search_lastdate.strftime('%Y-%m')
     dates_str = [search_firstdate_str, search_lastdate_str]
-    _index = pd.date_range(*(pd.to_datetime(dates_str) + pd.offsets.MonthEnd()), freq='M')
+    _index = pd.date_range(*(pd.to_datetime(dates_str) + pd.offsets.MonthEnd()), freq='ME')
 
     # Generate paths to search dirs
     searchdirs = []
@@ -49,17 +48,6 @@ def make_run_id():
     return run_id, now_time_easyread_str, now_time_dt
 
 
-def print_settings_dict(settings_dict, logger):
-    """ Prints the contents of a settings_dict in a more readable form. """
-
-    logger.log_info("\n\n-----------------------------------------------")
-    logger.log_info("FOUND SETTINGS FOR THIS RUN")
-    for d in settings_dict:
-        logger.log_info("{}: {}".format(d, settings_dict[d]))
-    logger.log_info("-----------------------------------------------")
-    return None
-
-
 def get_filename_without_ext_from_filepath(filepath):
     """
     extracts filename w/o extension from filepath
@@ -70,44 +58,18 @@ def get_filename_without_ext_from_filepath(filepath):
     return filename
 
 
-def get_subdir_from_date(date, outpath):
+def get_subdir_from_date(date, outpath, create=True):
     # get yearly and monthly destination folder for the file from filedate
-    # if these folders do not exist, they are created
+    # if these folders do not exist, they are created (unless create=False,
+    # e.g. during a dry run where no directories must be touched)
     subdir_year = str(date.year).zfill(4)
     subdir_month = str(date.month).zfill(2)
     subdir = Path("{}/{}".format(subdir_year, subdir_month))
     outpath = outpath / subdir
-    check_if_path_exists(path=outpath)
+    if create:
+        outpath.mkdir(parents=True, exist_ok=True)
 
     return outpath
-
-
-def check_if_path_exists(path):
-    if os.path.isdir(path):
-        pass
-    else:
-        os.makedirs(path)
-
-    return None
-
-
-def hash_value_for_file(file_full_path):
-    # https://tutorials.technology/tutorials/51-How-to-calculate-hash-of-big-files-with-python.html
-
-    block_size = 2 ** 20
-
-    with open(file_full_path, 'rb') as input_file:
-        sha1 = hashlib.sha1()
-
-        while True:
-            # we use the read passing the size of the block to avoid heavy ram usage
-            data = input_file.read(block_size)
-            if not data:
-                break  # if we don't have any more data to read, stop.
-            # we partially calculate the hash
-            sha1.update(data)
-
-    return sha1.digest()
 
 
 def get_datetime_from_filename(filename: str, filesettings: dict):

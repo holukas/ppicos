@@ -1,9 +1,13 @@
+# Local machine path configuration (contains site paths, never commit)
+paths.toml
+
 # Folders not needed for repo
 
 .idea
 /_archive
 /_raw_photoshop
 /_example_input_output
+/.claude
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

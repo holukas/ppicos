@@ -1,0 +1,19 @@
+# ppicos path configuration (template)
+#
+# Copy this file to "paths.toml" (same folder) and set the paths for your
+# machine. "paths.toml" is gitignored and must never be committed.
+#
+# Each file type in ppicos/filesettings.py reads one of these roots and appends
+# its own subfolder (e.g. "10_meteo", "13_meteo_nabel"). Use forward slashes,
+# even on Windows. Network shares work too, e.g. "//server/share/...".
+
+[roots]
+# Root folder holding the raw source files, one subfolder per file type.
+rawdata = "//server/share/rawdata/CH-DAV_Davos"
+# Root folder for the ICOS transfer output, one subfolder per file type.
+transfer = "//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER"
+
+[localtest]
+# Only used by the localtest_* file types for local development.
+input = "C:/path/to/example_input_output/input"
+output = "C:/path/to/example_input_output/output/01_ICOS_TRANSFER"
