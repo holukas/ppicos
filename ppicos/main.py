@@ -232,9 +232,8 @@ class IcosFormat:
         ix_equals_expected = n_timestamps_per_day == n_expected_records_per_day
         okdates = ix_equals_expected[ix_equals_expected]
         notokdates = ix_equals_expected[~ix_equals_expected]
-        df['__DATE_AUX__'] = df.index.date
-        df = df.loc[df['__DATE_AUX__'].isin(okdates.index)].copy()
-        df = df.drop('__DATE_AUX__', axis=1)
+        keep_rows = np.isin(df.index.date, okdates.index.to_numpy())
+        df = df.loc[keep_rows].copy()
         if len(notokdates) > 0:
             removed_dates = [f"{x}" for x in notokdates.index]
             self.logger.log_info(f"{self.logger.current_section}    * removed dates with timestamps not covering the "
