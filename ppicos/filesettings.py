@@ -25,7 +25,7 @@ Info about the file structure
 from pathlib import Path
 
 
-def f_10_meteo_localtest():
+def localtest_f_10_meteo():
     # --- TESTING ONLY ---
     # example filename: CH-DAV_iDL_T1_35_1_TBL1_2018_08_17_0000.dat
 

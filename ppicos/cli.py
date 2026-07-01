@@ -60,7 +60,7 @@ error_console = Console(stderr=True, theme=richconsole.THEME, highlight=False)
 
 AVAILABLE_TYPES = {
     '10_meteo': (filesettings.f_10_meteo, {}),
-    '10_meteo_localtest': (filesettings.f_10_meteo_localtest, {}),
+    '10_meteo_localtest': (filesettings.localtest_f_10_meteo, {}),
     '10_meteo_press': (filesettings.f_10_meteo_press, {}),
     '10_meteo_heatflag_sonic': (filesettings.f_10_meteo_heatflag_sonic, {}),
     '11_meteo_hut_prec': (filesettings.f_11_meteo_hut_prec, {}),
