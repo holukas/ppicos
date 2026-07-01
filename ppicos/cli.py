@@ -51,8 +51,9 @@ from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
-from ppicos import filesettings, richconsole
+from ppicos import __version__, filesettings, richconsole, tools
 from ppicos.main import IcosFormat, NoFilesFoundError
 
 # Stderr console for errors/warnings so they stay on the error stream and
@@ -309,6 +310,25 @@ def _print_names_table(title, names, style):
     richconsole.console.print(table)
 
 
+def _print_intro():
+    """Print a short header explaining what ppicos is and what it does."""
+    intro = (
+        "Post-processing for ICOS — converts raw data recorded at the "
+        "CH-DAV flux tower (Davos, Switzerland) into ICOS-compliant CSV "
+        "files for submission to the ICOS network.\n\n"
+        "No raw values are changed; only formatting is applied (column "
+        "renaming, timestamp reformatting, suffix removal). For each file "
+        "type it searches the source folders, reads the matching raw files, "
+        "reformats them, and writes one CSV per day."
+    )
+    richconsole.console.print()
+    richconsole.console.print(
+        Panel(intro, title=Text(f"ppicos v{__version__}", style="heading"),
+              border_style="section", box=box.ROUNDED,
+              title_align="left", padding=(1, 2))
+    )
+
+
 def run_all_processors(max_age_days, workers=3, dry_run=False):
     """Run every file type (except local-test types).
 
@@ -320,14 +340,18 @@ def run_all_processors(max_age_days, workers=3, dry_run=False):
     script_start = datetime.datetime.now()
     processors = _build_processor_list()
 
-    if dry_run:
-        headline = (f"DRY RUN — previewing {len(processors)} file types. "
-                    f"No files will be created or modified.")
-    else:
-        headline = (f"Running {len(processors)} file types with "
-                    f"{workers} parallel worker(s)")
-    richconsole.console.print()
-    richconsole.console.print(Panel(headline, style="heading", border_style="section"))
+    _print_intro()
+
+    first_date, last_date = tools.set_search_window(max_age_days=max_age_days)
+    facts = {
+        "Mode": "DRY RUN — no files created or modified" if dry_run else "Live run",
+        "File types": len(processors),
+        "Max age": f"{max_age_days} days",
+        "Search window": f"{first_date} → {last_date}",
+        "Workers": "1 (sequential)" if dry_run else workers,
+    }
+    title = "Run settings (dry run)" if dry_run else "Run settings"
+    richconsole.startup_panel(title, facts)
 
     results = []
     if dry_run:
@@ -377,6 +401,19 @@ def run_all_processors(max_age_days, workers=3, dry_run=False):
     else:
         richconsole.console.print()
         richconsole.console.print("No failures.", style="success")
+
+    # One-line overview at the very end
+    action = "previewed" if dry_run else "processed"
+    runtime = str(total_seconds).split('.')[0]  # drop microseconds
+    overview = (f"Overview: {len(results)} file types {action} · "
+                f"{len(successful)} with output · "
+                f"{len(no_files)} no files · "
+                f"{len(failed)} failed · runtime {runtime}")
+    overview_style = "error" if failed else "success"
+    richconsole.console.print()
+    richconsole.console.print(
+        Panel(overview, style=overview_style, border_style="section")
+    )
 
     return 0 if not failed else 1
 
