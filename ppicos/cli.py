@@ -94,7 +94,8 @@ def main():
                '  ppicos --dry-run                          # Preview all steps, create nothing\n'
                '  ppicos --type 10_meteo                    # Run specific processor\n'
                '  ppicos --type 12_meteo_forest_floor --instance 2  # Run forest floor 2\n'
-               '  ppicos --list                             # List available types\n',
+               '  ppicos --list                             # List available types\n'
+               '  ppicos --list-numbers                     # List logger/file numbers in use\n',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 
@@ -137,6 +138,11 @@ def main():
         action='store_true',
         help='List all available file types and exit'
     )
+    parser.add_argument(
+        '--list-numbers',
+        action='store_true',
+        help='List the ICOS logger (LN) and file (FN) numbers currently in use and exit'
+    )
 
     args = parser.parse_args()
 
@@ -144,6 +150,10 @@ def main():
     if args.list:
         print_available_types()
         return 0
+
+    # Handle --list-numbers
+    if args.list_numbers:
+        return print_used_numbers()
 
     # Run processors
     try:
@@ -185,6 +195,61 @@ def print_available_types():
     richconsole.console.print()
     richconsole.console.print(table)
     richconsole.console.print()
+
+
+def print_used_numbers():
+    """Print the ICOS logger (LN) and file (FN) numbers currently in use.
+
+    Reads the numbers from each file type's settings (forest floor expanded
+    into its 5 instances) and lists them sorted by logger then file number.
+    Combinations used by more than one file type are flagged as duplicates.
+    Returns an exit code.
+    """
+    rows = []
+    for display_name, func, kwargs in _build_processor_list():
+        try:
+            settings = func(**kwargs) if kwargs else func()
+        except FileNotFoundError as e:
+            error_console.print(f"Error: {e}", style="error")
+            return 1
+        ln = settings.get('OUTFILE_ICOS_LOGGERNUMBER_LN')
+        fn = settings.get('OUTFILE_ICOS_FILENUMBER_FN')
+        rows.append((display_name, ln, fn, func.__name__))
+
+    rows.sort(key=lambda r: (r[1] or '', r[2] or '', r[0]))
+
+    # A (logger, file) pair used by more than one file type is a real collision
+    combo_counts = {}
+    for _, ln, fn, _func in rows:
+        combo_counts[(ln, fn)] = combo_counts.get((ln, fn), 0) + 1
+    duplicates = sum(1 for c in combo_counts.values() if c > 1)
+
+    table = Table(title="ICOS logger and file numbers in use", title_style="heading",
+                  header_style="section", border_style="muted")
+    table.add_column("Logger (LN)", style="accent", no_wrap=True)
+    table.add_column("File (FN)", style="accent", no_wrap=True)
+    table.add_column("File type", style="info")
+    table.add_column("Defined in (filesettings.py)", style="path", no_wrap=True)
+    for name, ln, fn, funcname in rows:
+        is_dup = combo_counts[(ln, fn)] > 1
+        row_style = "warning" if is_dup else None
+        suffix = "  (duplicate LN+FN)" if is_dup else ""
+        table.add_row(f"L{ln}", f"F{fn}", f"{name}{suffix}",
+                      f"{funcname}()", style=row_style)
+
+    richconsole.console.print()
+    richconsole.console.print(table)
+    if duplicates:
+        richconsole.console.print(
+            f"⚠ {duplicates} logger/file number combination(s) used by more than "
+            f"one file type.", style="warning")
+    richconsole.console.print(
+        "Edit in ppicos/filesettings.py: OUTFILE_ICOS_LOGGERNUMBER_LN (logger) and "
+        "OUTFILE_ICOS_FILENUMBER_FN (file) in each f_* function. "
+        "Forest floor numbers are set in the conditional blocks of f_12_meteo_forest_floor().",
+        style="muted")
+    richconsole.console.print()
+    return 0
 
 
 def run_specific_processor(filetype, instance, table, max_age_days, dry_run=False):
