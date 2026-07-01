@@ -1,12 +1,39 @@
 # Changelog
 
-## v6.0.0 | XX XXX 2026
+## v6.0.0 | 1 Jul 2026
 
 ### Modernization & Quality Release
 
 **Requirements**:
 - Requires pandas 3.0+ (upgraded from 1.5.3)
+- Requires rich 15.0+ (console output)
 - Python 3.12 or higher
+
+**Breaking**:
+- Source and output paths are no longer hardcoded. Copy `paths.example.toml` to `paths.toml` and
+  set the `rawdata` and `transfer` roots before running. Existing setups must add this file.
+
+### Configuration
+- Moved the source and output roots out of the code into `paths.toml` (gitignored), read through a
+  new `config.py` module. Each file type appends its own subfolder to the `rawdata` or `transfer`
+  root. Added `paths.example.toml` as a template, and a `PPICOS_PATHS_FILE` override.
+
+### CLI and console output
+- Added parallel run-all: `ppicos` now processes file types concurrently, one worker per file type
+  (`--workers`, default 3), with a per-run log file and a compact status line per completion.
+- Added `--dry-run` to preview every step without creating or modifying any files.
+- Added `--list-numbers` to list the ICOS logger (LN) and file (FN) numbers in use, flag any
+  duplicate LN+FN combinations, and show which `filesettings.py` function defines each.
+- Reworked console output with rich: an intro header, a run-settings panel (mode, max age, search
+  window, workers), and a one-line overview summary at the end of a run-all.
+
+### Fixes
+- Fixed a pandas PerformanceWarning when removing partial days by filtering on the index instead of
+  adding and dropping a helper column.
+
+### Documentation
+- Rewrote the README: task-based structure, an "install on another machine with uv" guide, the
+  `paths.toml` configuration section, and prominent links to WORKFLOW.md and FLOWCHART.md.
 
 - Dropped support for deprecated pandas date_parser parameter — now works with pandas 2.0+
 - Fixed ZipFile resource management: now uses context manager for proper cleanup
