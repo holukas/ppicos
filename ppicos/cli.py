@@ -60,7 +60,7 @@ error_console = Console(stderr=True, theme=richconsole.THEME, highlight=False)
 
 AVAILABLE_TYPES = {
     '10_meteo': (filesettings.f_10_meteo, {}),
-    '10_meteo_localtest': (filesettings.localtest_f_10_meteo, {}),
+    'localtest_f_10_meteo': (filesettings.localtest_f_10_meteo, {}),
     '10_meteo_press': (filesettings.f_10_meteo_press, {}),
     '10_meteo_heatflag_sonic': (filesettings.f_10_meteo_heatflag_sonic, {}),
     '11_meteo_hut_prec': (filesettings.f_11_meteo_hut_prec, {}),
@@ -72,6 +72,12 @@ AVAILABLE_TYPES = {
     '17_meteo_profile': (filesettings.f_17_meteo_profile, {}),
     '30_profile_ghg': (filesettings.f_30_profile_ghg, {}),
 }
+
+
+def _is_localtest(filetype):
+    """Local-testing types point at local example data. They stay runnable via
+    --type but are hidden from --list and skipped by the run-all batch."""
+    return 'localtest' in filetype
 
 
 def main():
@@ -137,7 +143,7 @@ def print_available_types():
     """Print list of available file types"""
     descriptions = {
         '10_meteo': 'Basic meteorology',
-        '10_meteo_localtest': 'Basic meteorology (LOCAL TESTING ONLY)',
+        'localtest_f_10_meteo': 'Basic meteorology (LOCAL TESTING ONLY)',
         '10_meteo_press': 'Pressure sensor',
         '10_meteo_heatflag_sonic': 'Heat flag & sonic anemometer',
         '11_meteo_hut_prec': 'Hut precipitation',
@@ -154,6 +160,8 @@ def print_available_types():
     table.add_column("File type", style="accent", no_wrap=True)
     table.add_column("Description", style="info")
     for name in sorted(AVAILABLE_TYPES.keys()):
+        if _is_localtest(name):
+            continue
         table.add_row(name, descriptions.get(name, ''))
     richconsole.console.print()
     richconsole.console.print(table)
@@ -216,6 +224,8 @@ def run_all_processors(max_age_days):
     # Build processor list
     processors = []
     for filetype, (func, kwargs) in AVAILABLE_TYPES.items():
+        if _is_localtest(filetype):
+            continue
         if filetype == '12_meteo_forest_floor':
             for instance in range(1, 6):
                 display_name = f"{filetype}_instance_{instance}"
