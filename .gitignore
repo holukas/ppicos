@@ -1,3 +1,6 @@
+# Local machine path configuration (contains site paths, never commit)
+paths.toml
+
 # Folders not needed for repo
 
 .idea

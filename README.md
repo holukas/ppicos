@@ -17,6 +17,66 @@ pip install .
 uv sync
 ```
 
+### Install on another machine using uv
+
+These steps set up `ppicos` from scratch on a new machine. [uv](https://docs.astral.sh/uv/)
+handles both the Python version and the dependencies, so you don't need Python installed
+beforehand.
+
+1. **Install uv.**
+
+   Windows (PowerShell):
+   ```powershell
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+   macOS / Linux:
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
+
+   Open a new terminal afterwards so `uv` is on the `PATH`.
+
+2. **Get the code.** Clone the repository (or copy the project folder to the machine):
+   ```bash
+   git clone https://github.com/holukas/ppicos.git
+   cd ppicos
+   ```
+
+3. **Create the environment and install everything.** From the project root:
+   ```bash
+   uv sync
+   ```
+   This creates a `.venv` folder, installs a matching Python (3.12 or newer, as pinned in
+   `pyproject.toml`), and installs `ppicos` with all its dependencies.
+
+4. **Check that it works:**
+   ```bash
+   uv run ppicos --list
+   uv run ppicos --help
+   ```
+
+5. **Configure the data paths.** The source and output roots are not stored in the code. Copy
+   the template and set the roots for your machine:
+   ```bash
+   cp paths.example.toml paths.toml   # Windows: copy paths.example.toml paths.toml
+   ```
+   Edit `paths.toml` and set `rawdata` (raw source files) and `transfer` (ICOS output). Each
+   file type appends its own subfolder to these roots. `paths.toml` is gitignored and never
+   committed. Network paths (e.g. the ETH NAS) may need VPN access and valid credentials. You
+   can also point `PPICOS_PATHS_FILE` at a config file kept elsewhere.
+
+6. **Preview before running for real.** `--dry-run` reads the settings and previews every step
+   without creating or modifying any files:
+   ```bash
+   uv run ppicos --dry-run
+   ```
+
+Prefix commands with `uv run` to use the project environment without activating it manually
+(e.g. `uv run ppicos --type 10_meteo`). Alternatively, activate the venv once
+(`.venv\Scripts\activate` on Windows, `source .venv/bin/activate` elsewhere) and call `ppicos`
+directly.
+
 ### Quick Start
 
 After installation, use the `ppicos` command:
@@ -156,11 +216,11 @@ If `ppicos` is executed, the file `filesettings.py` has to reside in the same fo
 - `DATA_TIMESTAMP_COL`: Column index of timestamp column, e.g. `0` for first column
 - `DATA_TIMESTAMP_FORMAT`: Timestamp format in original data files, e.g. `'%Y-%m-%d %H:%M:%S'`
 - `DATA_TIMESTAMP_KEEP_NON_ICOS`: `True` or `False`
-- `DIR_OUT_ICOS`: Base folder for output,
-  e.g. `Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor')`
+- `DIR_OUT_ICOS`: Base folder for output. Built from the `transfer` root in `paths.toml` plus the
+  file type's subfolder, e.g. `transfer_root / '12_meteo_forestfloor'`
 - `DIR_OUT_LOGFILE`: Subfolder for logfile, e.g. `Path('log')`
-- `DIR_SOURCE_FILES`: Base folder of source files,
-  e.g. `Path('//server/share/archive/FluxData/CH-DAV_Davos/12_meteo_forestfloor')`
+- `DIR_SOURCE_FILES`: Base folder of source files. Built from the `rawdata` root in `paths.toml`
+  plus the file type's subfolder, e.g. `rawdata_root / '12_meteo_forestfloor'`
 - `FILENAME_DAY_POSITION`: Start and end position of day in filename, e.g. `[32, 34]`
 - `FILENAME_FOR_ICOS`: Format of ICOS-compliant filename,
   e.g. `'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv'`
@@ -180,7 +240,8 @@ If `ppicos` is executed, the file `filesettings.py` has to reside in the same fo
 ```
 def f_17_meteo_profile():
     # example filename: CH-DAV_meteo-profile_20250401.dat (current)
-    
+    rawdata_root, transfer_root = config.roots()
+
     renaming_map = {
         'TA_T1_1_1_Avg': 'TA_1_1_1',
         'TA_T1_2_1_Avg': 'TA_1_2_1',
@@ -210,9 +271,9 @@ def f_17_meteo_profile():
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',  # 2025-04-06 00:00:10
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/17_meteo_profile'),
+        'DIR_OUT_ICOS': transfer_root / '17_meteo_profile',
         'DIR_OUT_LOGFILE': Path('log'),
-        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/17_meteo_profile'),
+        'DIR_SOURCE_FILES': rawdata_root / '17_meteo_profile',
         'FILE_FILEGROUP': '17_meteo_profile',
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_ID': 'CH-DAV_meteo-profile_*.dat',
