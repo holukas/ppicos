@@ -3,7 +3,6 @@ import csv
 import datetime
 import fnmatch
 import os
-import sys
 import zipfile as zf
 from pathlib import Path
 
@@ -17,6 +16,10 @@ from ppicos import tools
 from ppicos.logger import Logger
 
 
+class NoFilesFoundError(Exception):
+    """Raised when no input files are available for a filetype in the search window."""
+
+
 class IcosFormat:
     """
     Format original raw data files to ICOS-compliant format
@@ -24,9 +27,16 @@ class IcosFormat:
 
     def __init__(self,
                  filesettings: dict,
-                 max_age_days: int = 5):
+                 max_age_days: int = 5,
+                 dry_run: bool = False,
+                 echo_console: bool = True):
         self.filesettings = filesettings
         self.max_age_days = max_age_days
+        # dry_run: preview only, never create or modify any file
+        self.dry_run = dry_run
+        # echo_console: print operation output to the console (off for quiet
+        # parallel workers, which still write their per-filetype log files)
+        self.echo_console = echo_console
 
         # Make identifier for this run
         self.run_id, self.run_start_datestr, self.run_start_dt = tools.make_run_id()
@@ -105,7 +115,9 @@ class IcosFormat:
                 filename = self._create_icos_filename(year=grp_date.year, month=grp_date.month, day=grp_date.day)
 
                 # Full output path to output files
-                dir_out = tools.get_subdir_from_date(date=grp_date, outpath=self.filesettings['DIR_OUT_ICOS'])
+                dir_out = tools.get_subdir_from_date(date=grp_date,
+                                                     outpath=self.filesettings['DIR_OUT_ICOS'],
+                                                     create=not self.dry_run)
                 csv_path = dir_out / filename
                 zip_path = dir_out / f"{Path(filename).stem}.zip"
 
@@ -120,7 +132,8 @@ class IcosFormat:
                 if not checkok:
                     continue
 
-                self.logger.log_info(f"{self.logger.current_section}    --> Creating daily file {output_filename} "
+                verb = "would create" if self.dry_run else "Creating"
+                self.logger.log_info(f"{self.logger.current_section}    --> {verb} daily file {output_filename} "
                                      f"for date {grp_date}")
 
                 # Basic data info
@@ -133,11 +146,22 @@ class IcosFormat:
                 # Save daily file (CSV, optionally zipped, optionally delete uncompressed)
                 self._save_daily_file(df=grp_df, csv_path=csv_path, zip_path=zip_path)
 
-                # Get info about previous script runs
-                self._add_filename_to_filetype_logfile(filename=output_filename)
+                # Record this file as processed (skipped during a dry run)
+                if not self.dry_run:
+                    self._add_filename_to_filetype_logfile(filename=output_filename)
 
     def _save_daily_file(self, df, csv_path, zip_path) -> None:
         """Save daily file: CSV → optionally ZIP → optionally delete uncompressed"""
+
+        # Dry run: preview the file operations without touching the filesystem
+        if self.dry_run:
+            sec = self.logger.current_section
+            self.logger.log_info(f"{sec}        * would save uncompressed ICOS file: {csv_path}")
+            if self.filesettings['OUTFILE_COMPRESSION']:
+                self.logger.log_info(f"{sec}        * would save compressed ICOS ZIP file: {zip_path}")
+            if self.filesettings['OUTFILE_DELETE_UNCOMPRESSED']:
+                self.logger.log_info(f"{sec}        * would delete uncompressed ICOS file: {csv_path}")
+            return
 
         # Write CSV with ICOS formatting
         header = self.filesettings['DATA_HEADER_OUTPUT_TO_FILE']
@@ -485,7 +509,9 @@ class IcosFormat:
 
             # Check if there is at least one file available, otherwise stop script
             checkok = self._check_if_files_available(files_df=files_df)
-            if not checkok: sys.exit(-1)
+            if not checkok:
+                raise NoFilesFoundError(
+                    f"No files found for {self.filesettings['FILE_FILEGROUP']}")
 
             # Log
             available_files = files_df['ETH_FILEPATH'].to_list()
@@ -514,6 +540,9 @@ class IcosFormat:
         if self.logfilepath_alreadyprocessed.is_file():
             with open(self.logfilepath_alreadyprocessed) as f:
                 contents = f.read()
+        elif self.dry_run:
+            # Dry run must not create any file
+            contents = ""
         else:
             # Create logfile if it does not exist yet
             with open(self.logfilepath_alreadyprocessed, 'w') as f:
@@ -541,17 +570,20 @@ class IcosFormat:
         """Setup text output to console and file"""
         logpath = tools.get_subdir_from_date(
             date=self.run_start_dt,
-            outpath=self.filesettings['DIR_OUT_ICOS'] / self.filesettings['DIR_OUT_LOGFILE'])
+            outpath=self.filesettings['DIR_OUT_ICOS'] / self.filesettings['DIR_OUT_LOGFILE'],
+            create=not self.dry_run)
         logger = Logger(run_id=self.run_id,
                         logdir=logpath,
-                        filetype=self.filesettings['FILE_FILEGROUP'])  # initialize logging
+                        filetype=self.filesettings['FILE_FILEGROUP'],
+                        write_file=not self.dry_run,
+                        echo_console=self.echo_console)  # initialize logging
         facts = {
             'ID': self.filesettings['FILENAME_ID'],
             'Start': self.run_start_datestr,
             'Run ID': self.run_id,
             'Source': self.filesettings['DIR_SOURCE_FILES'],
             'Output': self.filesettings['DIR_OUT_ICOS'],
-            'Log file': logpath,
+            'Log file': 'not written (dry run)' if self.dry_run else logpath,
         }
         logger.startup(title=self.filesettings['FILE_FILEGROUP'],
                        facts=facts,

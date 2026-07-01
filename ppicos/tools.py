@@ -58,14 +58,16 @@ def get_filename_without_ext_from_filepath(filepath):
     return filename
 
 
-def get_subdir_from_date(date, outpath):
+def get_subdir_from_date(date, outpath, create=True):
     # get yearly and monthly destination folder for the file from filedate
-    # if these folders do not exist, they are created
+    # if these folders do not exist, they are created (unless create=False,
+    # e.g. during a dry run where no directories must be touched)
     subdir_year = str(date.year).zfill(4)
     subdir_month = str(date.month).zfill(2)
     subdir = Path("{}/{}".format(subdir_year, subdir_month))
     outpath = outpath / subdir
-    outpath.mkdir(parents=True, exist_ok=True)
+    if create:
+        outpath.mkdir(parents=True, exist_ok=True)
 
     return outpath
 

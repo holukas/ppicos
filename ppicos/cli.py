@@ -45,13 +45,15 @@ Exit Codes:
 import argparse
 import datetime
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
 from ppicos import filesettings, richconsole
-from ppicos.main import IcosFormat
+from ppicos.main import IcosFormat, NoFilesFoundError
 
 # Stderr console for errors/warnings so they stay on the error stream and
 # remain clearly visible. Shares the same theme as the main console.
@@ -86,7 +88,9 @@ def main():
         description='Post-processing for ICOS flux tower data',
         prog='ppicos',
         epilog='Examples:\n'
-               '  ppicos                                    # Run all file types\n'
+               '  ppicos                                    # Run all file types (3 workers)\n'
+               '  ppicos --workers 5                        # Run all with 5 parallel workers\n'
+               '  ppicos --dry-run                          # Preview all steps, create nothing\n'
                '  ppicos --type 10_meteo                    # Run specific processor\n'
                '  ppicos --type 12_meteo_forest_floor --instance 2  # Run forest floor 2\n'
                '  ppicos --list                             # List available types\n',
@@ -116,6 +120,18 @@ def main():
         help='Maximum age of files to process in days (default: 14)'
     )
     parser.add_argument(
+        '--workers', '-w',
+        type=int,
+        default=3,
+        help='Number of file types to process in parallel when running all '
+             '(default: 3, one worker per file type)'
+    )
+    parser.add_argument(
+        '--dry-run', '-n',
+        action='store_true',
+        help='Preview all steps without creating or modifying any files'
+    )
+    parser.add_argument(
         '--list', '-l',
         action='store_true',
         help='List all available file types and exit'
@@ -131,9 +147,11 @@ def main():
     # Run processors
     try:
         if args.filetype:
-            return run_specific_processor(args.filetype, args.instance, args.table, args.max_age_days)
+            return run_specific_processor(args.filetype, args.instance, args.table,
+                                          args.max_age_days, dry_run=args.dry_run)
         else:
-            return run_all_processors(args.max_age_days)
+            return run_all_processors(args.max_age_days, workers=args.workers,
+                                      dry_run=args.dry_run)
     except Exception as e:
         error_console.print(f"Error: {e}", style="error")
         return 1
@@ -168,7 +186,7 @@ def print_available_types():
     richconsole.console.print()
 
 
-def run_specific_processor(filetype, instance, table, max_age_days):
+def run_specific_processor(filetype, instance, table, max_age_days, dry_run=False):
     """Run a specific processor"""
     if filetype not in AVAILABLE_TYPES:
         error_console.print(f"Error: Unknown file type '{filetype}'", style="error")
@@ -194,19 +212,30 @@ def run_specific_processor(filetype, instance, table, max_age_days):
             error_console.print(f"Warning: --instance ignored for {filetype}", style="warning")
         display_name = filetype
 
+    banner = f"Running: {display_name}"
+    if dry_run:
+        banner += "  [DRY RUN — no files will be created or modified]"
+
     try:
         richconsole.console.print()
         richconsole.console.print(
-            Panel(f"Running: {display_name}", style="heading", border_style="section")
+            Panel(banner, style="heading", border_style="section")
         )
         richconsole.console.print()
 
         settings = func(**kwargs) if kwargs else func()
-        icosformat = IcosFormat(filesettings=settings, max_age_days=max_age_days)
+        icosformat = IcosFormat(filesettings=settings, max_age_days=max_age_days,
+                                dry_run=dry_run)
         icosformat.run()
 
         richconsole.console.print()
-        richconsole.console.print(f"✓ Successfully completed: {display_name}", style="success")
+        done = "Dry run complete" if dry_run else "Successfully completed"
+        richconsole.console.print(f"✓ {done}: {display_name}", style="success")
+        richconsole.console.print()
+        return 0
+    except NoFilesFoundError as e:
+        richconsole.console.print()
+        richconsole.console.print(f"· No files to process: {display_name} ({e})", style="muted")
         richconsole.console.print()
         return 0
     except Exception as e:
@@ -217,11 +246,9 @@ def run_specific_processor(filetype, instance, table, max_age_days):
         return 1
 
 
-def run_all_processors(max_age_days):
-    """Run all processors"""
-    script_start = datetime.datetime.now()
-
-    # Build processor list
+def _build_processor_list():
+    """Expand AVAILABLE_TYPES into (display_name, func, kwargs) work items,
+    excluding local-test types and expanding forest floors into instances."""
     processors = []
     for filetype, (func, kwargs) in AVAILABLE_TYPES.items():
         if _is_localtest(filetype):
@@ -235,23 +262,96 @@ def run_all_processors(max_age_days):
                 processors.append((display_name, func, kwargs_copy))
         else:
             processors.append((filetype, func, kwargs))
+    return processors
 
-    # Run all processors
-    run_successful = []
-    run_not_successful = []
 
-    for display_name, func, kwargs in processors:
-        try:
-            richconsole.rule(f"Processing: {display_name}...")
-            settings = func(**kwargs) if kwargs else func()
-            icosformat = IcosFormat(filesettings=settings, max_age_days=max_age_days)
-            icosformat.run()
-            run_successful.append(display_name)
-        except Exception as e:
-            richconsole.log_line(f"Failed: {display_name} - {e}", style="error")
-            run_not_successful.append(display_name)
+def _run_one(display_name, func, kwargs, max_age_days, dry_run, echo):
+    """Run a single file type.
+
+    Returns (display_name, outcome, elapsed_seconds, error) where outcome is
+    one of 'success', 'no_files' or 'failed'. Never raises, so it is safe to
+    hand to a worker pool.
+    """
+    start = datetime.datetime.now()
+    try:
+        settings = func(**kwargs) if kwargs else func()
+        IcosFormat(filesettings=settings, max_age_days=max_age_days,
+                   dry_run=dry_run, echo_console=echo).run()
+        outcome, error = 'success', None
+    except NoFilesFoundError as e:
+        outcome, error = 'no_files', str(e)
+    except Exception as e:
+        outcome, error = 'failed', str(e)
+    elapsed = (datetime.datetime.now() - start).total_seconds()
+    return display_name, outcome, elapsed, error
+
+
+def _print_status(name, outcome, elapsed, error):
+    """Print one compact status line for a completed parallel run."""
+    if outcome == 'success':
+        richconsole.console.print(f"✓ {name} · {elapsed:.1f}s", style="success")
+    elif outcome == 'no_files':
+        richconsole.console.print(f"· {name} — no files in window", style="muted")
+    else:
+        richconsole.log_line(f"✗ {name} — {error}", style="error")
+
+
+def _print_names_table(title, names, style):
+    # Title on its own line so it never wraps to the (narrow) name column width
+    richconsole.console.print()
+    richconsole.console.print(title, style=style)
+    if not names:
+        return
+    table = Table(show_header=False, border_style="muted", box=box.ROUNDED)
+    table.add_column("File type", style=style)
+    for n in names:
+        table.add_row(n)
+    richconsole.console.print(table)
+
+
+def run_all_processors(max_age_days, workers=3, dry_run=False):
+    """Run every file type (except local-test types).
+
+    Normal mode runs file types concurrently, one worker per file type; each
+    run's detail goes to its own log file while the console shows a compact
+    status line per completion. Dry-run mode runs sequentially and prints a
+    full, ordered preview without creating or modifying any files.
+    """
+    script_start = datetime.datetime.now()
+    processors = _build_processor_list()
+
+    if dry_run:
+        headline = (f"DRY RUN — previewing {len(processors)} file types. "
+                    f"No files will be created or modified.")
+    else:
+        headline = (f"Running {len(processors)} file types with "
+                    f"{workers} parallel worker(s)")
+    richconsole.console.print()
+    richconsole.console.print(Panel(headline, style="heading", border_style="section"))
+
+    results = []
+    if dry_run:
+        # Sequential, verbose, ordered preview (readability over speed)
+        for display_name, func, kwargs in processors:
+            richconsole.rule(f"[dry-run] {display_name}")
+            results.append(_run_one(display_name, func, kwargs, max_age_days,
+                                    dry_run=True, echo=True))
+    else:
+        # Parallel, quiet workers; the main thread prints status on completion
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(_run_one, display_name, func, kwargs,
+                                       max_age_days, False, False)
+                       for display_name, func, kwargs in processors]
+            for future in as_completed(futures):
+                result = future.result()
+                _print_status(*result)
+                results.append(result)
 
     # Summary
+    successful = [r[0] for r in results if r[1] == 'success']
+    no_files = [r[0] for r in results if r[1] == 'no_files']
+    failed = [(r[0], r[3]) for r in results if r[1] == 'failed']
+
     total_seconds = datetime.datetime.now() - script_start
     richconsole.console.print()
     richconsole.console.print(
@@ -259,29 +359,26 @@ def run_all_processors(max_age_days):
               style="heading", border_style="section")
     )
 
-    success_table = Table(title=f"✓ Successful runs ({len(run_successful)})",
-                          title_style="success", border_style="muted",
-                          show_header=False)
-    success_table.add_column("Run", style="success")
-    for r in run_successful:
-        success_table.add_row(r)
-    richconsole.console.print()
-    richconsole.console.print(success_table)
+    verb = "Would run" if dry_run else "Completed"
+    _print_names_table(f"✓ {verb} ({len(successful)})", successful, "success")
 
-    if run_not_successful:
-        failed_table = Table(title=f"✗ Failed runs ({len(run_not_successful)})",
-                             title_style="error", border_style="muted",
-                             show_header=False)
-        failed_table.add_column("Run", style="error")
-        for r in run_not_successful:
-            failed_table.add_row(r)
+    if no_files:
+        _print_names_table(f"· No files in window ({len(no_files)})", no_files, "muted")
+
+    if failed:
+        failed_table = Table(title=f"✗ Failed ({len(failed)})",
+                             title_style="error", border_style="muted")
+        failed_table.add_column("File type", style="error", no_wrap=True)
+        failed_table.add_column("Error", style="error", overflow="fold")
+        for name, error in failed:
+            failed_table.add_row(name, error or "")
         richconsole.console.print()
         richconsole.console.print(failed_table)
     else:
         richconsole.console.print()
-        richconsole.console.print("All processors completed successfully!", style="success")
+        richconsole.console.print("No failures.", style="success")
 
-    return 0 if not run_not_successful else 1
+    return 0 if not failed else 1
 
 
 if __name__ == '__main__':

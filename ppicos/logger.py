@@ -9,32 +9,39 @@ from ppicos import richconsole
 class Logger(object):
     """Logger that outputs to both console and file with automatic section tracking"""
 
-    def __init__(self, run_id, logdir, filetype):
+    def __init__(self, run_id, logdir, filetype, write_file=True, echo_console=True):
         super(Logger, self).__init__()
 
-        # Set up file logging
-        outfile = os.path.join(logdir, run_id)
-        logfile = '{}_{}.log'.format(outfile, filetype)
-        logger = logging.getLogger(logfile)
-        logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(message)s')
-        fh = logging.FileHandler(logfile, mode='w')
-        fh.setLevel(logging.INFO)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-        self.logger = logger
+        # Whether to echo to the console (disabled for quiet parallel workers)
+        self.echo = echo_console
+
+        # Set up file logging (disabled for dry runs, which touch no files)
+        self.logger = None
+        if write_file:
+            outfile = os.path.join(logdir, run_id)
+            logfile = '{}_{}.log'.format(outfile, filetype)
+            logger = logging.getLogger(logfile)
+            logger.setLevel(logging.INFO)
+            formatter = logging.Formatter('%(message)s')
+            fh = logging.FileHandler(logfile, mode='w')
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+            self.logger = logger
 
         # Track current section for context-aware logging
         self.current_section = ''
 
     def _log_file(self, record):
         """Write a record to the plain-text log file only (no console output)"""
-        self.logger.info(record)
+        if self.logger is not None:
+            self.logger.info(record)
 
     def log_info(self, record):
         """Output record to console (Rich) and log file"""
-        self.logger.info(record)
-        richconsole.log_line(record)
+        self._log_file(record)
+        if self.echo:
+            richconsole.log_line(record)
 
     @contextlib.contextmanager
     def section(self, name):
@@ -45,14 +52,16 @@ class Logger(object):
 
         # File keeps the verbose banner; console gets a modern section rule.
         self._log_file(f"\n\n\n{'-' * 80}\n{name}\n{name} SECTION START")
-        richconsole.section_start(name)
+        if self.echo:
+            richconsole.section_start(name)
         try:
             yield
         finally:
             elapsed = time.time() - tic
             # File keeps the original wording; console gets a subtle summary.
             self._log_file(f'{name} SECTION END. Runtime: {elapsed:.4f}s')
-            richconsole.section_end(name, elapsed)
+            if self.echo:
+                richconsole.section_end(name, elapsed)
             self.current_section = previous_section
 
     def startup(self, title, facts: dict, settings: dict, source_dir):
@@ -77,5 +86,6 @@ class Logger(object):
         self._log_file('\nsource dir:  {}'.format(source_dir))
 
         # --- console: compact, modern rendering ---
-        richconsole.startup_panel(title, facts)
-        richconsole.settings_table(settings)
+        if self.echo:
+            richconsole.startup_panel(title, facts)
+            richconsole.settings_table(settings)
