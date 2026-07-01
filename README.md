@@ -25,8 +25,14 @@ After installation, use the `ppicos` command:
 # Show available file types
 ppicos --list
 
-# Run all file types
+# Run all file types (in parallel, 3 workers by default)
 ppicos
+
+# Run all with a custom number of parallel workers
+ppicos --workers 5
+
+# Preview all steps without creating or modifying any files
+ppicos --dry-run
 
 # Run specific file type (e.g., 10_meteo)
 ppicos --type 10_meteo
@@ -43,10 +49,20 @@ ppicos --help
 
 ### CLI Examples
 
-Run all file types:
+Run all file types. They are processed in parallel, one worker per file type
+(default: 3 workers); local-test file types are excluded from the batch:
 
 ```bash
-ppicos --max-age-days 14
+ppicos                            # run all with 3 parallel workers
+ppicos --workers 5                # run all with 5 parallel workers
+ppicos --max-age-days 14          # custom search window
+```
+
+Dry run — preview every step without creating or modifying any files:
+
+```bash
+ppicos --dry-run                  # preview all file types
+ppicos --type 10_meteo --dry-run  # preview a single file type
 ```
 
 Run specific processors (all with search window of 14 days):
