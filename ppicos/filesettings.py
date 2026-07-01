@@ -59,8 +59,11 @@ def localtest_f_10_meteo():
         'OUTFILE_DELETE_UNCOMPRESSED': True,
         'OUTFILE_ICOS_FILENUMBER_FN': '03',
         'OUTFILE_ICOS_LOGGERNUMBER_LN': '02',
-        'DIR_SOURCE_FILES': Path(r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\input\10_meteo'),  # testing
-        'DIR_OUT_ICOS': Path(r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\output\01_ICOS_TRANSFER\10_meteo')  # testing
+        'DIR_SOURCE_FILES': Path(
+            r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\input\10_meteo'),  # testing
+        'DIR_OUT_ICOS': Path(
+            r'F:\Sync\luhk_work\dev-data\icos-data\ppicos-data\example_input_output\output\01_ICOS_TRANSFER\10_meteo')
+        # testing
     }
 
     return file_info
@@ -253,9 +256,9 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'DATA_TIMESTAMP_COL': 0,
         'DATA_TIMESTAMP_FORMAT': '%Y-%m-%d %H:%M:%S',
         'DATA_TIMESTAMP_KEEP_NON_ICOS': True,
-        # 'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor'),
+        'DIR_OUT_ICOS': Path('//server/share/processing/CH-DAV_Davos/01_ICOS_TRANSFER/12_meteo_forestfloor'),
         'DIR_OUT_LOGFILE': Path('log'),
-        # 'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/12_meteo_forestfloor'),
+        'DIR_SOURCE_FILES': Path('//server/share/rawdata/FluxData/CH-DAV_Davos/12_meteo_forestfloor'),
         'FILENAME_FOR_ICOS': 'CH-Dav_BM_{year}{month:02d}{day:02d}_L{logger}_F{file}.csv',
         'FILENAME_LENGTH': 43,
         'FILENAME_POSITION_DAY': [32, 34],
@@ -265,8 +268,8 @@ def f_12_meteo_forest_floor(forest_floor, table):
         'FILENAME_POSITION_YEAR': [24, 28],
         'OUTFILE_COMPRESSION': True,
         'OUTFILE_DELETE_UNCOMPRESSED': True,
-        'DIR_SOURCE_FILES': Path(r'F:\TMP\del'),  # todo testing
-        'DIR_OUT_ICOS': Path(r'F:\TMP\del\out')  # todo testing
+        # 'DIR_SOURCE_FILES': Path(r'F:\TMP\del'),  # testing
+        # 'DIR_OUT_ICOS': Path(r'F:\TMP\del\out')  # testing
     }
 
     file_info['FILENAME_ID'] = 'CH-DAV_iDL_FF{ff}_0_1_TBL{t}_*.dat'.format(ff=forest_floor, t=table)
