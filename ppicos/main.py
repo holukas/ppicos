@@ -262,8 +262,13 @@ class IcosFormat:
 
     def _convert_index_to_middle_timestamp(self, df) -> DataFrame:
         """Convert timestamp index to show MIDDLE of averaging interval"""
-        # Original timestamp shows the END
-        df.index = df.index - pd.to_timedelta(df.index.freq / 2)
+        # Original timestamp shows the END. Compute the half-interval from the
+        # frequency string, not from df.index.freq: dividing a Tick offset such
+        # as Second(1) by 2 floors to zero (offsets are whole-unit only), which
+        # left 1-second data unshifted and pushed the midnight record into the
+        # wrong daily file (first row 000000 instead of 000001).
+        half_interval = pd.Timedelta(self.filesettings['DATA_FREQUENCY']) / 2
+        df.index = df.index - half_interval
         df.index.name = ('TIMESTAMP_MIDDLE', 'TS')
         self.logger.log_info(f"{self.logger.current_section}    * original timestamp was converted to "
                              f"TIMESTAMP_MIDDLE (only used for creating daily files, "

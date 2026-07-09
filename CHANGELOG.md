@@ -1,5 +1,15 @@
 # Changelog
 
+## v6.0.1 | 9 Jul 2026
+
+### Fixes
+- Fixed the first timestamp in 1-second files (`30_profile_ghg` / ST) getting assigned to the wrong
+  day. The midnight record ended up as the first row of the new day (`000000`) instead of the last
+  row of the previous day, and ICOS rejected it as non-compliant. The half-interval shift that
+  builds `TIMESTAMP_MIDDLE` now comes from the frequency string rather than the index frequency:
+  dividing a pandas `Second` offset by 2 floors to zero, so 1-second data never got shifted. Files
+  sampled at 10 seconds or slower were unaffected.
+
 ## v6.0.0 | 1 Jul 2026
 
 ### Modernization & Quality Release
