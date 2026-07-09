@@ -1,6 +1,6 @@
 [project]
 name = "ppicos"
-version = "6.0.0"
+version = "6.0.1"
 description = "Convert data files to ICOS-conform file formats."
 readme = "README.md"
 license = {text = "MIT"}
