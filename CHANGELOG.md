@@ -1,5 +1,13 @@
 # Changelog
 
+## v6.0.2 | unreleased
+
+### Changed
+- The package version is now defined only in `pyproject.toml`. `__init__.py` reads it at runtime
+  through `importlib.metadata` instead of hardcoding it, so a version bump only touches one file.
+  Before this, `__version__` was maintained separately and could drift out of sync with the version
+  shown in the rich console banner.
+
 ## v6.0.1 | 9 Jul 2026
 
 ### Fixes
